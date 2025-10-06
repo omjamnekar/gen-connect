@@ -1,7 +1,7 @@
 name: gen_connect
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+repository: https://github.com/your-org/gen-connect
 
 environment:
   sdk: ^3.8.1

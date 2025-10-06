@@ -1,8 +1,48 @@
-<p align="center">
-	<img src="gen_connect.png" alt="gen_connect logo" width="400" />
-</p>
+![gen_connect logo](gen_connect.png)
 
 gen_connect is a modular Dart/Flutter package for integrating any AI model/provider (OpenAI, Gemini, Anthropic, Meta, Grok, DeepSeek, PaLM, and custom models) into your app with type-safe, scalable connectors and unified error handling.
+
+## Supported Models by Provider
+
+### OpenAI
+
+Models: gpt4, gpt3, gpt4-turbo, gpt-vision, gpt-image-1, whisper, dall-e, code-davinci, etc.
+Methods: sendPrompt, sendImage, sendAudio, sendCode
+
+### Gemini
+
+Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.5-pro, gemini-pro-vision, etc.
+Methods: sendPrompt, sendImage, sendAudio
+
+### Meta
+
+Models: llama2, llama3, llama-guard, etc.
+Methods: sendPrompt, sendImage
+
+### Anthropic
+
+Models: claude-3-opus, claude-3-sonnet, claude-3-haiku, etc.
+Methods: sendPrompt
+
+### DeepSeek
+
+Models: deepseek-chat, deepseek-coder, deepseek-vision, etc.
+Methods: sendPrompt, sendCode, sendImage
+
+### PaLM
+
+Models: palm2, codey, chirp, etc.
+Methods: sendPrompt, sendCode, sendAudio
+
+### Grok
+
+Models: grok-1, grok-1.5, grok-2.5, etc.
+Methods: sendPrompt, sendCode
+
+### Custom
+
+Models: Any custom model name (e.g., organization-specific)
+Methods: sendPrompt, sendImage, sendAudio, sendCode, sendVideo
 
 ## Features
 
@@ -27,125 +67,92 @@ gen_connect is a modular Dart/Flutter package for integrating any AI model/provi
 
 ## Connectors & Usage
 
-This package provides modular connectors for each AI provider and use case. Each connector is type-safe and restricts features to supported models only.
+This package provides modular connectors for each AI provider and use case. Each connector is type-safe and restricts features to supported models only. Below are examples for all available methods per provider and their models:
 
 ### OpenAI Connector
+
+Models: gpt4, gpt3, gpt4-turbo, gpt-vision, gpt-image-1, whisper, dall-e, code-davinci
 
 ```dart
 import 'package:gen_connect/connectors/openai/openai_connector.dart';
 final openai = OpenAIConnector(apiKey: 'YOUR_OPENAI_KEY');
-final response = await openai.sendPrompt('Hello AI!');
-```
-
-#### Use-case connectors (OpenAI)
-
-```dart
-import 'package:gen_connect/connectors/openai/usecase/chat_model_connector.dart';
-final chat = OpenAIChatModelConnector(apiKey: 'YOUR_KEY', model: OpenAIModel.gpt4);
-final chatResponse = await chat.sendPrompt('Chat with GPT-4');
-
-import 'package:gen_connect/connectors/openai/usecase/image_model_connector.dart';
-final image = OpenAIImageModelConnector(apiKey: 'YOUR_KEY', model: OpenAIModel.gptImage1);
-final imageResponse = await image.sendImage('path/to/image.png');
+final chatResponse = await openai.sendPrompt('Chat with GPT-4');
+final imageResponse = await openai.sendImage('path/to/image.png');
+final audioResponse = await openai.sendAudio('path/to/audio.wav');
+final codeResponse = await openai.sendCode('print("Hello World")');
 ```
 
 ### Gemini Connector
 
+Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.5-pro, gemini-pro-vision
+
 ```dart
 import 'package:gen_connect/connectors/gemini/gemini_connector.dart';
 final gemini = GeminiConnector(apiKey: 'YOUR_GEMINI_KEY');
-final response = await gemini.sendPrompt('Hello Gemini!');
-```
-
-#### Use-case connectors (Gemini)
-
-```dart
-import 'package:gen_connect/connectors/gemini/usecase/text_model_connector.dart';
-final text = GeminiTextModelConnector(apiKey: 'YOUR_KEY', model: GeminiModel.gemini2_5Pro);
-final textResponse = await text.sendPrompt('Gemini text');
+final textResponse = await gemini.sendPrompt('Gemini text');
+final imageResponse = await gemini.sendImage('path/to/image.png');
+final audioResponse = await gemini.sendAudio('path/to/audio.wav');
 ```
 
 ### Meta Connector
 
+Models: llama2, llama3, llama-guard
+
 ```dart
 import 'package:gen_connect/connectors/meta/meta_connector.dart';
 final meta = MetaConnector(apiKey: 'YOUR_META_KEY');
-final response = await meta.sendPrompt('Hello Meta!');
-```
-
-#### Use-case connectors (Meta)
-
-```dart
-import 'package:gen_connect/connectors/meta/usecase/text_model_connector.dart';
-final text = MetaTextModelConnector(apiKey: 'YOUR_KEY', model: MetaModel.llama2);
-final textResponse = await text.sendPrompt('Meta text');
+final textResponse = await meta.sendPrompt('Meta text');
+final imageResponse = await meta.sendImage('path/to/image.png');
 ```
 
 ### Anthropic Connector
 
+Models: claude-3-opus, claude-3-sonnet, claude-3-haiku
+
 ```dart
 import 'package:gen_connect/connectors/anthropic/anthropic_connector.dart';
 final anthropic = AnthropicConnector(apiKey: 'YOUR_ANTHROPIC_KEY');
-final response = await anthropic.sendPrompt('Hello Claude!');
-```
-
-#### Use-case connectors (Anthropic)
-
-```dart
-import 'package:gen_connect/connectors/anthropic/usecase/text_model_connector.dart';
-final text = AnthropicTextModelConnector(apiKey: 'YOUR_KEY', model: AnthropicModel.claude3Opus);
-final textResponse = await text.sendPrompt('Anthropic text');
+final textResponse = await anthropic.sendPrompt('Anthropic text');
 ```
 
 ### DeepSeek Connector
 
+Models: deepseek-chat, deepseek-coder, deepseek-vision
+
 ```dart
 import 'package:gen_connect/connectors/deepseek/deepseek_connector.dart';
 final deepseek = DeepSeekConnector(apiKey: 'YOUR_DEEPSEEK_KEY');
-final response = await deepseek.sendPrompt('Hello DeepSeek!');
-```
-
-#### Use-case connectors (DeepSeek)
-
-```dart
-import 'package:gen_connect/connectors/deepseek/usecase/text_model_connector.dart';
-final text = DeepSeekTextModelConnector(apiKey: 'YOUR_KEY', model: DeepSeekModel.deepseekChat);
-final textResponse = await text.sendPrompt('DeepSeek text');
+final chatResponse = await deepseek.sendPrompt('DeepSeek chat');
+final codeResponse = await deepseek.sendCode('def foo(): pass');
+final imageResponse = await deepseek.sendImage('path/to/image.png');
 ```
 
 ### PaLM Connector
 
+Models: palm2, codey, chirp
+
 ```dart
 import 'package:gen_connect/connectors/palm/palm_connector.dart';
 final palm = PalmConnector(apiKey: 'YOUR_PALM_KEY', model: PalmModel.palm2);
-final response = await palm.sendPrompt('Hello PaLM!');
-```
-
-#### Use-case connectors (PaLM)
-
-```dart
-import 'package:gen_connect/connectors/palm/model/text_model_connector.dart';
-final text = PalmTextModelConnector(apiKey: 'YOUR_KEY', model: PalmModel.palm2);
-final textResponse = await text.sendPrompt('PaLM text');
+final textResponse = await palm.sendPrompt('PaLM text');
+final codeResponse = await palm.sendCode('let x = 1;');
+final audioResponse = await palm.sendAudio('path/to/audio.wav');
 ```
 
 ### Grok Connector
 
+Models: grok-1, grok-1.5, grok-2.5
+
 ```dart
 import 'package:gen_connect/connectors/grok/grok_connector.dart';
 final grok = GrokConnector(apiKey: 'YOUR_GROK_KEY');
-final response = await grok.sendPrompt('Hello Grok!');
-```
-
-#### Use-case connectors (Grok)
-
-```dart
-import 'package:gen_connect/connectors/grok/usecase/text_model_connector.dart';
-final text = GrokTextModelConnector(apiKey: 'YOUR_KEY', model: GrokModel.grok2_5);
-final textResponse = await text.sendPrompt('Grok text');
+final textResponse = await grok.sendPrompt('Grok text');
+final codeResponse = await grok.sendCode('SELECT * FROM users;');
 ```
 
 ### Custom Model Connector
+
+Models: Any custom model name
 
 ```dart
 import 'package:gen_connect/connectors/custom/custom_model_connector.dart';
@@ -156,6 +163,10 @@ final custom = CustomModelConnector(
   model: Models.OPENAI,
 );
 final customResponse = await custom.sendPrompt('Custom model test');
+final customImageResponse = await custom.sendImage('path/to/image.png');
+final customAudioResponse = await custom.sendAudio('path/to/audio.wav');
+final customCodeResponse = await custom.sendCode('echo "Hello"');
+final customVideoResponse = await custom.sendVideo('path/to/video.mp4');
 ```
 
 See `/example` for more advanced usage and all available use-case connectors.

@@ -1,4 +1,4 @@
-![gen_connect logo](gen_connect.png)
+<img src="gen_connect.png" alt="gen_connect logo" width="120" />
 
 gen_connect is a modular Dart/Flutter package for integrating any AI model/provider (OpenAI, Gemini, Anthropic, Meta, Grok, DeepSeek, PaLM, and custom models) into your app with type-safe, scalable connectors and unified error handling.
 

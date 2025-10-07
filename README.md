@@ -211,7 +211,7 @@ See `/example/main.dart` for how to:
 
 ## Contributing & Support
 
-- Issues and feature requests: [GitHub Issues](https://github.com/your-org/gen_connect/issues)
+- **Source code & repository:** [GitHub Repository](https://github.com/omjamnekar/gen-connect) – access the full codebase, submit issues, and contribute directly.- Issues and feature requests: [GitHub Issues](https://github.com/omjamnekar/gen-connect/issues)
 - Pull requests welcome!
 - See CHANGELOG.md for release history.
 

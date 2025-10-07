@@ -1,7 +1,7 @@
 import 'package:gen_connect/enums/gemini.dart';
 import 'package:gen_connect/enums/models.dart';
 
-import '../openai/usecase/ai_model_connector.dart';
+import '../../repo/ai_model_connector.dart';
 import 'usecase/text_model_connector.dart';
 import 'usecase/image_model_connector.dart';
 import 'usecase/audio_model_connector.dart';

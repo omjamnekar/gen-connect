@@ -1,4 +1,4 @@
-import 'package:gen_connect/connectors/openai/usecase/ai_model_connector.dart';
+import 'package:gen_connect/repo/ai_model_connector.dart';
 import '../../../core/errors.dart';
 import 'package:gen_connect/enums/deepseek.dart';
 import 'package:gen_connect/enums/models.dart';

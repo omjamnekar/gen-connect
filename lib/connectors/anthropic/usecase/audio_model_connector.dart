@@ -1,10 +1,10 @@
-import 'package:gen_connect/connectors/openai/usecase/ai_model_connector.dart';
+import 'package:gen_connect/repo/ai_model_connector.dart';
 import '../../../core/errors.dart';
 import 'package:gen_connect/enums/anthropic.dart';
 
 final Set<AnthropicModel> anthropicAudioModels = {AnthropicModel.claude3Opus};
 
-class AnthropicAudioModelConnector implements AIModelConnector {
+class AnthropicAudioModelConnector {
   final String apiKey;
   final AnthropicModel model;
 
@@ -15,8 +15,6 @@ class AnthropicAudioModelConnector implements AIModelConnector {
       );
     }
   }
-
-  @override
   String get name => 'Anthropic';
 
   Future<String> sendAudio(
@@ -28,34 +26,34 @@ class AnthropicAudioModelConnector implements AIModelConnector {
     return 'Anthropic audio response to: "$audioPath" | model: ${model.value}';
   }
 
-  @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async =>
-      throw AIConnectorError('Text input not supported for audio models');
+  // @override
+  // Future<String> sendPrompt(
+  //   String prompt, {
+  //   double? temperature,
+  //   int? maxTokens,
+  //   String? systemPrompt,
+  //   Map<String, dynamic>? extraOptions,
+  // }) async =>
+  //     throw AIConnectorError('Text input not supported for audio models');
 
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
+  // @override
+  // Future<String> sendFile(
+  //   String filePath, {
+  //   String? prompt,
+  //   Map<String, dynamic>? extraOptions,
+  // }) async => throw UnimplementedError('File upload not supported');
 
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Image input not supported');
+  // @override
+  // Future<String> sendImage(
+  //   String imagePath, {
+  //   String? prompt,
+  //   Map<String, dynamic>? extraOptions,
+  // }) async => throw UnimplementedError('Image input not supported');
 
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
+  // @override
+  // Future<String> sendDocument(
+  //   String documentPath, {
+  //   String? prompt,
+  //   Map<String, dynamic>? extraOptions,
+  // }) async => throw UnimplementedError('Document upload not supported');
 }

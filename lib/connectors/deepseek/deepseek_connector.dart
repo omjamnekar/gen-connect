@@ -4,7 +4,7 @@ import 'usecase/text_model_connector.dart';
 import 'usecase/code_model_connector.dart';
 import 'usecase/image_model_connector.dart';
 import 'usecase/audio_model_connector.dart';
-import '../openai/usecase/ai_model_connector.dart';
+import '../../repo/ai_model_connector.dart';
 
 class DeepSeekConnector implements AIModelConnector {
   final String apiKey;

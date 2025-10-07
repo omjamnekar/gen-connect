@@ -23,7 +23,7 @@ void main() async {
         apiKey: openAIKey,
         model: OpenAIModel.gpt3_5Turbo,
       );
-      print(openAIKey);
+
       final anthropic = AnthropicConnector(apiKey: 'test-key');
       manager.addConnector(openAI);
       manager.addConnector(anthropic);

@@ -3,7 +3,7 @@ import 'model/text_model_connector.dart';
 import 'model/code_model_connector.dart';
 import 'model/image_model_connector.dart';
 import 'model/audio_model_connector.dart';
-import '../openai/usecase/ai_model_connector.dart';
+import '../../repo/ai_model_connector.dart';
 import '../../core/errors.dart';
 
 class PalmConnector implements AIModelConnector {
@@ -131,4 +131,16 @@ class PalmConnector implements AIModelConnector {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async => throw UnimplementedError('PaLM document upload not supported');
+
+  @override
+  Future<String> sendPromptImage(
+    String prompt, {
+    double? temperature,
+    int? maxTokens,
+    String? systemPrompt,
+    Map<String, dynamic>? extraOptions,
+  }) {
+    // TODO: implement sendPromptImage
+    throw UnimplementedError();
+  }
 }

@@ -1,5 +1,5 @@
 import 'package:gen_connect/enums/models.dart';
-import '../openai/usecase/ai_model_connector.dart';
+import '../../repo/ai_model_connector.dart';
 
 class AnthropicConnector implements AIModelConnector {
   final String apiKey;
@@ -50,5 +50,27 @@ class AnthropicConnector implements AIModelConnector {
   }) async {
     // TODO: Implement document upload to Anthropic API
     return 'Anthropic document upload: $documentPath | prompt: $prompt | extra: $extraOptions (simulated)';
+  }
+
+  @override
+  Future<String> sendAudio(
+    String audioPath, {
+    String? prompt,
+    Map<String, dynamic>? extraOptions,
+  }) {
+    // TODO: implement sendAudio
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> sendPromptImage(
+    String prompt, {
+    double? temperature,
+    int? maxTokens,
+    String? systemPrompt,
+    Map<String, dynamic>? extraOptions,
+  }) {
+    // TODO: implement sendPromptImage
+    throw UnimplementedError();
   }
 }

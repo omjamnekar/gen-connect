@@ -1,6 +1,10 @@
+import 'dart:math';
+
+import 'package:gen_connect/connectors/grok/usecase/audio_model_connector.dart';
+import 'package:gen_connect/connectors/grok/usecase/image_model_connector.dart';
 import 'package:gen_connect/enums/grok.dart';
 import 'package:gen_connect/enums/models.dart';
-import '../openai/usecase/ai_model_connector.dart';
+import '../../repo/ai_model_connector.dart';
 import 'usecase/text_model_connector.dart';
 import 'usecase/code_model_connector.dart';
 
@@ -10,10 +14,17 @@ class GrokConnector implements AIModelConnector {
 
   late final GrokTextModelConnector _textConnector;
   late final GrokCodeModelConnector _codeConnector;
+  late final GrokAudioModelConnector _audioConnector;
+  late final GrokImageModelConnector _imageModelConnector;
 
   GrokConnector({required this.apiKey, required this.model}) {
     _textConnector = GrokTextModelConnector(apiKey: apiKey, model: model);
     _codeConnector = GrokCodeModelConnector(apiKey: apiKey, model: model);
+    _imageModelConnector = GrokImageModelConnector(
+      apiKey: apiKey,
+      model: model,
+    );
+    _audioConnector = GrokAudioModelConnector(apiKey: apiKey, model: model);
   }
 
   @override
@@ -63,4 +74,28 @@ class GrokConnector implements AIModelConnector {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async => throw UnimplementedError('Grok document upload not supported');
+
+  @override
+  Future<String> sendAudio(
+    String audioPath, {
+    String? prompt,
+    Map<String, dynamic>? extraOptions,
+  }) async => _audioConnector.sendAudio(audioPath);
+
+  @override
+  Future<String> sendPromptImage(
+    String prompt, {
+    double? temperature,
+    int? maxTokens,
+    String? systemPrompt,
+    Map<String, dynamic>? extraOptions,
+  }) {
+    return _imageModelConnector.sendPromptImage(
+      prompt,
+      temperature: temperature,
+      maxTokens: maxTokens,
+      extraOptions: extraOptions,
+      systemPrompt: systemPrompt,
+    );
+  }
 }

@@ -1,5 +1,5 @@
 import 'package:gen_connect/enums/models.dart';
-import '../openai/usecase/ai_model_connector.dart';
+import '../../repo/ai_model_connector.dart';
 import '../../core/errors.dart';
 
 class MetaConnector implements AIModelConnector {

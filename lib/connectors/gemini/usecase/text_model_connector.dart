@@ -1,9 +1,9 @@
 import 'package:gen_connect/core/constants/api.dart';
 import 'package:gen_connect/enums/gemini.dart';
 import 'package:gen_connect/enums/models.dart';
+import 'package:gen_connect/repo/ai_model_connector.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../openai/usecase/ai_model_connector.dart';
 
 final Set<GeminiModel> geminiTextModels = {
   GeminiModel.gemini2_5Pro,

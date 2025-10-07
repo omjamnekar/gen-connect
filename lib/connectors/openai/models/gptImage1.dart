@@ -10,14 +10,30 @@ class Gptimage1 {
     Map<String, dynamic>? extraOptions,
     String? prompt,
   })
-  get sendPromptToImage => openAIImageModelConnector.sendImagetoImage;
+  get sendPromptToImage =>
+      (String imagePath, {Map<String, dynamic>? extraOptions, String? prompt}) {
+        return openAIImageModelConnector.sendImagetoImage(
+          imagePath,
+          OpenAIModel.gptImage1,
+          extraOptions: extraOptions,
+          prompt: prompt,
+        );
+      };
 
   Future<String> Function(
     String imagePath, {
     Map<String, dynamic>? extraOptions,
     String? prompt,
   })
-  get sendImagetoImageGetter => openAIImageModelConnector.sendImagetoImage;
+  get sendImagetoImageGetter =>
+      (String imagePath, {Map<String, dynamic>? extraOptions, String? prompt}) {
+        return openAIImageModelConnector.sendImagetoImage(
+          imagePath,
+          OpenAIModel.gptImage1,
+          extraOptions: extraOptions,
+          prompt: prompt,
+        );
+      };
 
   String get name => OpenAIModel.gptImage1.name;
 }

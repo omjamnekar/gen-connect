@@ -11,19 +11,13 @@ const Set<OpenAIModel> embeddingCapableModels = {
 
 class OpenAIEmbeddingModelConnector {
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIEmbeddingModelConnector({required this.apiKey, required this.model}) {
-    if (!embeddingCapableModels.contains(model)) {
-      throw ArgumentError(
-        'Model \\${model.value} is not embedding-capable. Allowed: \\${embeddingCapableModels.map((m) => m.value).join(", ")}',
-      );
-    }
-  }
+  OpenAIEmbeddingModelConnector({required this.apiKey});
 
   String get name => Models.OPENAI.name;
 
   Future<List<double>> embedText(
+    OpenAIModel model,
     String text, {
     Map<String, dynamic>? extraOptions,
   }) async {
@@ -57,6 +51,7 @@ class OpenAIEmbeddingModelConnector {
   }
 
   Future<List<List<double>>> embedTexts(
+    OpenAIModel model,
     List<String> texts, {
     Map<String, dynamic>? extraOptions,
   }) async {

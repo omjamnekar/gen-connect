@@ -12,14 +12,38 @@ class O3Pro {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   })
-  get sendPromptReasoning => openAIReasoningModelConnector.sendPromptReasoning;
+  get sendPromptReasoning =>
+      (
+        String prompt, {
+        double? temperature,
+        int? maxTokens,
+        String? systemPrompt,
+        Map<String, dynamic>? extraOptions,
+      }) {
+        return openAIReasoningModelConnector.sendPromptReasoning(
+          prompt,
+          OpenAIModel.o3Pro,
+          temperature: temperature,
+          maxTokens: maxTokens,
+          systemPrompt: systemPrompt,
+          extraOptions: extraOptions,
+        );
+      };
 
   Future<String> Function(
     String imagePath, {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   })
-  get sendImageReasoning => openAIReasoningModelConnector.sendImageReasoning;
+  get sendImageReasoning =>
+      (String imagePath, {String? prompt, Map<String, dynamic>? extraOptions}) {
+        return openAIReasoningModelConnector.sendImageReasoning(
+          imagePath,
+          OpenAIModel.o3Pro,
+          prompt: prompt,
+          extraOptions: extraOptions,
+        );
+      };
 
   Future<String> Function(
     String documentPath, {

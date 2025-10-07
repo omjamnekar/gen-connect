@@ -3,53 +3,61 @@ import 'package:gen_connect/connectors/openai/usecase/file_model_connector.dart'
 import 'package:gen_connect/enums/openai.dart';
 
 class Gpt35turbo {
-  OpenAIChatModelConnector openAIChatModelConnector;
-  OpenAIFileModelConnector openAIFileModelConnector;
+  final OpenAIChatModelConnector openAIChatModelConnector;
+  final OpenAIFileModelConnector openAIFileModelConnector;
+
   Gpt35turbo({
     required this.openAIChatModelConnector,
     required this.openAIFileModelConnector,
   });
 
-  Future<String> get listConversations =>
-      openAIChatModelConnector.listConversations();
-
-  Future<String> Function(Map<String, dynamic>) get createConversation =>
-      openAIChatModelConnector.createConversation;
-
-  Future<String> Function(String, Map<String, dynamic>)
-  get updateConversation => openAIChatModelConnector.updateConversation;
-
-  Future<void> Function(String) get deleteConversation =>
-      openAIChatModelConnector.deleteConversation;
-
-  Future<String> Function(String) get getModelInfo =>
-      openAIChatModelConnector.getModelInfo;
-
-  Future<String> get listModels => openAIChatModelConnector.listModels();
-
-  Future<String> Function(String) get moderateContent =>
-      openAIChatModelConnector.moderateContent;
-
-  Future<String> Function(String) get getConversation =>
-      openAIChatModelConnector.getConversation;
-
-  Future<String> Function(
-    String, {
+  // Chat prompt
+  Future<String> sendPrompt(
+    String prompt, {
     double? temperature,
     int? maxTokens,
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
-  })
-  get sendPrompt => openAIChatModelConnector.sendPrompt;
+  }) async => openAIChatModelConnector.sendPrompt(
+    OpenAIModel.gpt3_5Turbo,
+    prompt,
+    temperature: temperature,
+    maxTokens: maxTokens,
+    systemPrompt: systemPrompt,
+    extraOptions: extraOptions,
+  );
 
-  Future<String> Function(String, {Map<String, dynamic>? extraOptions})
-  get uploadFile => openAIFileModelConnector.uploadFiletoText;
+  // File upload
+  Future<String> uploadFile(
+    String filePath, {
+    Map<String, dynamic>? extraOptions,
+  }) async => openAIFileModelConnector.uploadFiletoText(
+    filePath,
+    extraOptions: extraOptions,
+  );
 
-  Future<void> Function(String) get deleteFile =>
-      openAIFileModelConnector.deleteFile;
+  // Conversation management
+  Future<String> listConversations() async =>
+      openAIChatModelConnector.listConversations();
+  Future<String> createConversation(Map<String, dynamic> initialData) async =>
+      openAIChatModelConnector.createConversation(initialData);
+  Future<String> updateConversation(
+    String conversationId,
+    Map<String, dynamic> updateData,
+  ) async =>
+      openAIChatModelConnector.updateConversation(conversationId, updateData);
+  Future<void> deleteConversation(String conversationId) async =>
+      openAIChatModelConnector.deleteConversation(conversationId);
+  Future<String> getConversation(String conversationId) async =>
+      openAIChatModelConnector.getConversation(conversationId);
 
-  Future<String> Function(String) get getFileInfo =>
-      openAIFileModelConnector.getFileInfo;
+  // Model info
+  Future<String> getModelInfo(String modelName) async =>
+      openAIChatModelConnector.getModelInfo(modelName);
+
+  // Moderation
+  Future<String> moderateContent(String input) async =>
+      openAIChatModelConnector.moderateContent(input);
 
   String get name => OpenAIModel.gpt3_5Turbo.name;
 }

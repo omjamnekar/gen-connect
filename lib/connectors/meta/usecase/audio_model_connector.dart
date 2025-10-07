@@ -1,60 +1,41 @@
-import 'package:gen_connect/repo/ai_model_connector.dart';
-import 'package:gen_connect/enums/meta.dart';
-import 'package:gen_connect/enums/models.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../core/errors.dart';
 
-final Set<MetaModel> metaAudioModels = {MetaModel.llama3Large};
-
-class MetaAudioModelConnector implements AIModelConnector {
+class MetaAudioModelConnector {
   final String apiKey;
-  final MetaModel model;
+  MetaAudioModelConnector({required this.apiKey});
 
-  MetaAudioModelConnector({required this.apiKey, required this.model}) {
-    if (!metaAudioModels.contains(model)) {
-      throw ArgumentError(
-        'Model ${model.value} is not audio-capable. Allowed: ${metaAudioModels.map((m) => m.value).join(", ")}',
+  Future<String> transcribeAudio(
+    String filePath, {
+    Map<String, dynamic>? extraOptions,
+  }) async {
+    try {
+      final uri = Uri.parse('https://api.meta.ai/v1/audio/transcribe');
+      final request = http.MultipartRequest('POST', uri)
+        ..headers['Authorization'] = 'Bearer $apiKey'
+        ..files.add(await http.MultipartFile.fromPath('file', filePath));
+      if (extraOptions != null) {
+        request.fields.addAll(
+          extraOptions.map((k, v) => MapEntry(k, v.toString())),
+        );
+      }
+      final response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      if (response.statusCode == 200) {
+        final data = jsonDecode(respStr);
+        return data['transcript'] ?? '';
+      } else {
+        throw APIException(
+          'Meta audio transcription error: ${response.statusCode}',
+          innerException: Exception(respStr),
+        );
+      }
+    } catch (e) {
+      throw APIException(
+        'Meta audio model error',
+        innerException: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
-
-  @override
-  String get name => Models.META.name;
-
-  Future<String> sendAudio(
-    String audioPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement Meta audio model API call
-    return 'Meta audio response to: "$audioPath" | model: ${model.value}';
-  }
-
-  @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Text input not supported');
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Image input not supported');
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
 }

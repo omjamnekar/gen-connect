@@ -5,18 +5,29 @@ class Textembeddingada002 {
   OpenAIEmbeddingModelConnector openAIEmbeddingModelConnector;
 
   Textembeddingada002({required this.openAIEmbeddingModelConnector});
-
   Future<List<double>> Function(
     String text, {
     Map<String, dynamic>? extraOptions,
   })
-  get embedText => openAIEmbeddingModelConnector.embedText;
+  get embedText => (String text, {Map<String, dynamic>? extraOptions}) {
+    return openAIEmbeddingModelConnector.embedText(
+      OpenAIModel.textEmbeddingAda002,
+      text,
+      extraOptions: extraOptions,
+    );
+  };
 
   Future<List<List<double>>> Function(
     List<String> texts, {
     Map<String, dynamic>? extraOptions,
   })
-  get embedTexts => openAIEmbeddingModelConnector.embedTexts;
+  get embedTexts => (List<String> texts, {Map<String, dynamic>? extraOptions}) {
+    return openAIEmbeddingModelConnector.embedTexts(
+      OpenAIModel.textEmbeddingAda002,
+      texts,
+      extraOptions: extraOptions,
+    );
+  };
 
   String get name => OpenAIModel.textEmbeddingAda002.name;
 }

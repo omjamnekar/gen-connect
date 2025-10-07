@@ -1,5 +1,11 @@
 import 'package:gen_connect/enums/models.dart';
 import '../../repo/ai_model_connector.dart';
+import 'models/claude2.dart';
+import 'models/claude3.dart';
+import 'models/claude_instant.dart';
+import 'models/claude3_opus.dart';
+import 'models/claude3_sonnet.dart';
+import 'models/claude3_haiku.dart';
 
 class AnthropicConnector implements AIModelConnector {
   final String apiKey;
@@ -7,70 +13,13 @@ class AnthropicConnector implements AIModelConnector {
 
   AnthropicConnector({required this.apiKey, this.model = 'claude-2'});
 
-  @override
-  String get name => Models.CLAUDE.name;
+  Claude2 get claude2 => Claude2(apiKey: apiKey);
+  Claude3 get claude3 => Claude3(apiKey: apiKey);
+  ClaudeInstant get claudeInstant => ClaudeInstant(apiKey: apiKey);
+  Claude3Opus get claude3Opus => Claude3Opus(apiKey: apiKey);
+  Claude3Sonnet get claude3Sonnet => Claude3Sonnet(apiKey: apiKey);
+  Claude3Haiku get claude3Haiku => Claude3Haiku(apiKey: apiKey);
 
   @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement actual API call with all options
-    return 'Anthropic response to: "$prompt" | model: $model | temp: ${temperature ?? 'default'} | maxTokens: ${maxTokens ?? 'default'} | systemPrompt: ${systemPrompt ?? 'none'} | extra: ${extraOptions ?? {}} (simulated)';
-  }
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement file upload to Anthropic API if supported
-    return 'Anthropic file upload: $filePath | prompt: $prompt | extra: $extraOptions (simulated)';
-  }
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement image upload to Anthropic API if supported
-    return 'Anthropic image upload: $imagePath | prompt: $prompt | extra: $extraOptions (simulated)';
-  }
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement document upload to Anthropic API
-    return 'Anthropic document upload: $documentPath | prompt: $prompt | extra: $extraOptions (simulated)';
-  }
-
-  @override
-  Future<String> sendAudio(
-    String audioPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) {
-    // TODO: implement sendAudio
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<String> sendPromptImage(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) {
-    // TODO: implement sendPromptImage
-    throw UnimplementedError();
-  }
+  Models get name => Models.CLAUDE;
 }

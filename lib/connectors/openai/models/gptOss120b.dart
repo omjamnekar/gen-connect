@@ -12,7 +12,23 @@ class Gptoss120b {
     String? systemPrompt,
     double? temperature,
   })
-  get sendChatPrompt => openAIOpenWeightModelConnector.sendChatPrompt;
+  get sendChatPrompt =>
+      (
+        String prompt, {
+        Map<String, dynamic>? extraOptions,
+        int? maxTokens,
+        String? systemPrompt,
+        double? temperature,
+      }) {
+        return openAIOpenWeightModelConnector.sendChatPrompt(
+          prompt,
+          OpenAIModel.gptOss120b,
+          extraOptions: extraOptions,
+          maxTokens: maxTokens,
+          systemPrompt: systemPrompt,
+          temperature: temperature,
+        );
+      };
 
   Future<String> Function(
     String prompt, {
@@ -21,7 +37,20 @@ class Gptoss120b {
     double? temperature,
   })
   get sendCompletionPrompt =>
-      openAIOpenWeightModelConnector.sendCompletionPrompt;
+      (
+        String prompt, {
+        Map<String, dynamic>? extraOptions,
+        int? maxTokens,
+        double? temperature,
+      }) {
+        return openAIOpenWeightModelConnector.sendCompletionPrompt(
+          prompt,
+          OpenAIModel.gptOss120b,
+          extraOptions: extraOptions,
+          maxTokens: maxTokens,
+          temperature: temperature,
+        );
+      };
 
   String get name => OpenAIModel.gptOss120b.name;
 }

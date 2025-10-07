@@ -13,19 +13,13 @@ final List<OpenAIModel> openWeightCapableModels = [
 
 class OpenAIOpenWeightModelConnector {
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIOpenWeightModelConnector({required this.apiKey, required this.model}) {
-    if (!openWeightCapableModels.contains(model)) {
-      throw ArgumentError(
-        'Model ${model.value} is not open-weight-capable. Allowed: ${openWeightCapableModels.map((m) => m.value).join(", ")}',
-      );
-    }
-  }
+  OpenAIOpenWeightModelConnector({required this.apiKey});
   String get name => Models.OPENAI.name;
 
   Future<String> sendChatPrompt(
-    String prompt, {
+    String prompt,
+    OpenAIModel model, {
     double? temperature,
     int? maxTokens,
     String? systemPrompt,
@@ -61,7 +55,8 @@ class OpenAIOpenWeightModelConnector {
   }
 
   Future<String> sendCompletionPrompt(
-    String prompt, {
+    String prompt,
+    OpenAIModel model, {
     double? temperature,
     int? maxTokens,
     Map<String, dynamic>? extraOptions,

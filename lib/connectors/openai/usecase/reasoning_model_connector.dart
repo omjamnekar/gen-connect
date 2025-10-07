@@ -13,22 +13,16 @@ final Set<OpenAIModel> reasoningCapableModels = {
 
 class OpenAIReasoningModelConnector {
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIReasoningModelConnector({required this.apiKey, required this.model}) {
-    if (!reasoningCapableModels.contains(model)) {
-      throw ArgumentError(
-        'Model ${model.value} is not reasoning-capable. Allowed: ${reasoningCapableModels.map((m) => m.value).join(", ")}',
-      );
-    }
-  }
+  OpenAIReasoningModelConnector({required this.apiKey});
 
   // @override
   String get name => Models.OPENAI.name;
 
   // @override
   Future<String> sendPromptReasoning(
-    String prompt, {
+    String prompt,
+    OpenAIModel model, {
     double? temperature,
     int? maxTokens,
     String? systemPrompt,
@@ -64,7 +58,8 @@ class OpenAIReasoningModelConnector {
   }
 
   Future<String> sendImageReasoning(
-    String imagePath, {
+    String imagePath,
+    OpenAIModel model, {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async {

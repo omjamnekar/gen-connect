@@ -10,20 +10,14 @@ const Set<OpenAIModel> imageCapableModels = {OpenAIModel.gptImage1};
 
 class OpenAIImageModelConnector {
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIImageModelConnector({required this.apiKey, required this.model}) {
-    if (!imageCapableModels.contains(model)) {
-      throw AIConnectorError(
-        'Model ${model.value} is not image-capable. Allowed: ${imageCapableModels.map((m) => m.value).join(", ")}',
-      );
-    }
-  }
+  OpenAIImageModelConnector({required this.apiKey});
 
   String get name => Models.OPENAI.name;
 
   Future<String> sendPromptToImage(
-    String prompt, {
+    String prompt,
+    OpenAIModel model, {
     double? temperature,
     int? maxTokens,
     String? systemPrompt,
@@ -56,7 +50,8 @@ class OpenAIImageModelConnector {
   }
 
   Future<String> sendImagetoImage(
-    String imagePath, {
+    String imagePath,
+    OpenAIModel model, {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async {

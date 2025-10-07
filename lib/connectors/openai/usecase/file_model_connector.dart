@@ -12,9 +12,8 @@ const Set<OpenAIModel> fileCapableModels = {
 
 class OpenAIFileModelConnector {
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIFileModelConnector({required this.apiKey, required this.model});
+  OpenAIFileModelConnector({required this.apiKey});
 
   Future<String> uploadFiletoText(
     String filePath, {

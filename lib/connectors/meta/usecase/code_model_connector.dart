@@ -1,63 +1,42 @@
-import 'package:gen_connect/repo/ai_model_connector.dart';
-import 'package:gen_connect/enums/meta.dart';
-import 'package:gen_connect/enums/models.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../core/errors.dart';
 
-final Set<MetaModel> metaCodeModels = {
-  MetaModel.codeLlama,
-  MetaModel.codeLlamaPython,
-  MetaModel.codeLlamaInstruct,
-};
-
-class MetaCodeModelConnector implements AIModelConnector {
+class MetaCodeModelConnector {
   final String apiKey;
-  final MetaModel model;
+  MetaCodeModelConnector({required this.apiKey});
 
-  MetaCodeModelConnector({required this.apiKey, required this.model}) {
-    if (!metaCodeModels.contains(model)) {
-      throw ArgumentError(
-        'Model ${model.value} is not code-capable. Allowed: ${metaCodeModels.map((m) => m.value).join(", ")}',
+  Future<String> generateCode(
+    String prompt, {
+    Map<String, dynamic>? extraOptions,
+  }) async {
+    try {
+      final uri = Uri.parse('https://api.meta.ai/v1/code/generate');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'prompt': prompt,
+          if (extraOptions != null) ...extraOptions,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['code'] ?? '';
+      } else {
+        throw APIException(
+          'Meta code generation error: ${response.statusCode}',
+          innerException: Exception(response.body),
+        );
+      }
+    } catch (e) {
+      throw APIException(
+        'Meta code model error',
+        innerException: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
-
-  @override
-  String get name => Models.META.name;
-
-  Future<String> sendCode(
-    String code, {
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement Meta code model API call
-    return 'Meta code response to: "$code" | model: ${model.value}';
-  }
-
-  @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Text input not supported');
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Image input not supported');
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
 }

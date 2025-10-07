@@ -36,25 +36,15 @@ class OpenAIConnector extends AIModelConnector {
   late final OpenAIOpenWeightModelConnector _openWeightConnector;
   late final OpenAIFileModelConnector _fileConnector;
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIConnector({required this.apiKey, required this.model}) {
-    _chatConnector = OpenAIChatModelConnector(apiKey: apiKey, model: model);
-    _reasoningConnector = OpenAIReasoningModelConnector(
-      apiKey: apiKey,
-      model: model,
-    );
-    _imageConnector = OpenAIImageModelConnector(apiKey: apiKey, model: model);
-    _audioConnector = OpenAIAudioModelConnector(apiKey: apiKey, model: model);
-    _embeddingConnector = OpenAIEmbeddingModelConnector(
-      apiKey: apiKey,
-      model: model,
-    );
-    _fileConnector = OpenAIFileModelConnector(apiKey: apiKey, model: model);
-    _openWeightConnector = OpenAIOpenWeightModelConnector(
-      apiKey: apiKey,
-      model: model,
-    );
+  OpenAIConnector({required this.apiKey}) {
+    _chatConnector = OpenAIChatModelConnector(apiKey: apiKey);
+    _reasoningConnector = OpenAIReasoningModelConnector(apiKey: apiKey);
+    _imageConnector = OpenAIImageModelConnector(apiKey: apiKey);
+    _audioConnector = OpenAIAudioModelConnector(apiKey: apiKey);
+    _embeddingConnector = OpenAIEmbeddingModelConnector(apiKey: apiKey);
+    _fileConnector = OpenAIFileModelConnector(apiKey: apiKey);
+    _openWeightConnector = OpenAIOpenWeightModelConnector(apiKey: apiKey);
   }
 
   @override

@@ -10,9 +10,8 @@ final Set<OpenAIModel> audioCapableModels = {
 
 class OpenAIAudioModelConnector {
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIAudioModelConnector({required this.apiKey, required this.model});
+  OpenAIAudioModelConnector({required this.apiKey});
 
   String get name => Models.OPENAI.name;
 }

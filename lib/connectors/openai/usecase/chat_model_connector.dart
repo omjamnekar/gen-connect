@@ -15,6 +15,10 @@ const Set<OpenAIModel> chatCapableModels = {
 
 class OpenAIChatModelConnector {
   /// List all conversations
+
+  final String apiKey;
+
+  OpenAIChatModelConnector({required this.apiKey});
   Future<String> listConversations() async {
     final url = Uri.parse(ApiConstants.listOpenAIConversations());
     final response = await http.get(
@@ -116,25 +120,6 @@ class OpenAIChatModelConnector {
     }
   }
 
-  /// List all models
-  Future<String> listModels() async {
-    final url = Uri.parse(ApiConstants.listOpenAIModels());
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
-    );
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      throw APIException(
-        'OpenAI listModels error: ${response.statusCode} ${response.body}',
-      );
-    }
-  }
-
   /// Moderate content
   Future<String> moderateContent(String input) async {
     final url = Uri.parse(ApiConstants.moderateOpenAIContent());
@@ -177,20 +162,10 @@ class OpenAIChatModelConnector {
     }
   }
 
-  final String apiKey;
-  final OpenAIModel model;
-
-  OpenAIChatModelConnector({required this.apiKey, required this.model}) {
-    if (!chatCapableModels.contains(model)) {
-      throw AIConnectorError(
-        'Model ${model.value} is not chat-capable. Allowed: ${chatCapableModels.map((m) => m.value).join(", ")}',
-      );
-    }
-  }
-
   String get name => Models.OPENAI.name;
 
   Future<String> sendPrompt(
+    OpenAIModel model,
     String prompt, {
     double? temperature,
     int? maxTokens,

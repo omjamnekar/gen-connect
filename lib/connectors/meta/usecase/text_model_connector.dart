@@ -1,42 +1,51 @@
-import 'package:gen_connect/repo/ai_model_connector.dart';
-import '../../../core/errors.dart';
+import 'dart:convert';
 import 'package:gen_connect/enums/meta.dart';
 import 'package:gen_connect/enums/models.dart';
+import 'package:http/http.dart' as http;
+import '../../../core/errors.dart';
 
-final Set<MetaModel> metaTextModels = {
-  MetaModel.llama2,
-  MetaModel.llama3,
-  MetaModel.llama3Large,
-  MetaModel.llama3Medium,
-  MetaModel.llama3Small,
-};
-
-class MetaTextModelConnector implements AIModelConnector {
+class MetaTextModelConnector {
   final String apiKey;
-  final MetaModel model;
 
-  MetaTextModelConnector({required this.apiKey, required this.model}) {
-    if (!metaTextModels.contains(model)) {
-      throw AIConnectorError(
-        'Model ${model.value} is not text-capable. Allowed: ${metaTextModels.map((m) => m.value).join(", ")}',
-      );
-    }
-  }
+  MetaTextModelConnector({required this.apiKey});
 
-  @override
   String get name => Models.META.name;
 
-  @override
   Future<String> sendPrompt(
     String prompt, {
+    required MetaModel model,
     double? temperature,
     int? maxTokens,
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
-      // TODO: Implement Meta text model API call
-      return 'Meta text response to: "$prompt" | model: ${model.value}';
+      // Example HTTPS call using Dart's http package
+      final uri = Uri.parse('https://api.meta.ai/v1/text/generate');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': model.value,
+          'prompt': prompt,
+          if (temperature != null) 'temperature': temperature,
+          if (maxTokens != null) 'max_tokens': maxTokens,
+          if (systemPrompt != null) 'system_prompt': systemPrompt,
+          if (extraOptions != null) ...extraOptions,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['result'] ?? '';
+      } else {
+        throw APIException(
+          'Meta text model error: ${response.statusCode}',
+          innerException: Exception(response.body),
+        );
+      }
     } catch (e) {
       throw APIException(
         'Meta text model error',
@@ -44,25 +53,4 @@ class MetaTextModelConnector implements AIModelConnector {
       );
     }
   }
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Image input not supported');
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
 }

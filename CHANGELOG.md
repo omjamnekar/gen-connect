@@ -1,4 +1,4 @@
-## 0.0.4
+## 0.0.3
 
 - Initial release: Modular AI connector package for Dart/Flutter
 - Added connectors for OpenAI, Gemini, Anthropic, Meta, Grok, DeepSeek, PaLM, and custom models

@@ -1,4 +1,4 @@
-<img src="gen_connect.png" alt="gen_connect logo" width="120" />
+<img src="gen_connect.png" alt="gen_connect logo"   />
 
 gen_connect is a modular Dart/Flutter package for integrating any AI model/provider (OpenAI, Gemini, Anthropic, Meta, Grok, DeepSeek, PaLM, and custom models) into your app with type-safe, scalable connectors and unified error handling.
 
@@ -19,6 +19,11 @@ Methods: sendPrompt, sendImage, sendAudio
 Models: llama2, llama3, llama-guard, etc.
 Methods: sendPrompt, sendImage
 
+### Claude
+
+Models: claude-2, claude-3, claude-1, etc.
+Methods: sendPrompt
+
 ### Anthropic
 
 Models: claude-3-opus, claude-3-sonnet, claude-3-haiku, etc.
@@ -38,11 +43,6 @@ Methods: sendPrompt, sendCode, sendAudio
 
 Models: grok-1, grok-1.5, grok-2.5, etc.
 Methods: sendPrompt, sendCode
-
-### Custom
-
-Models: Any custom model name (e.g., organization-specific)
-Methods: sendPrompt, sendImage, sendAudio, sendCode, sendVideo
 
 ## Features
 
@@ -72,6 +72,26 @@ This package provides modular connectors for each AI provider and use case. Each
 ### OpenAI Connector
 
 Models: gpt4, gpt3, gpt4-turbo, gpt-vision, gpt-image-1, whisper, dall-e, code-davinci
+
+## Centralized Connector Management
+
+You can manage all your AI connectors using `GenConnectManager`:
+
+```dart
+import 'package:gen_connect/gen_manager.dart';
+import 'package:gen_connect/connectors/openai/openai_connector.dart';
+import 'package:gen_connect/connectors/gemini/gemini_connector.dart';
+// ...other imports...
+
+final manager = GenConnectManager.getInstance();
+manager.addConnector(OpenAIConnector(apiKey: 'YOUR_OPENAI_KEY'));
+manager.addConnector(GeminiConnector(apiKey: 'YOUR_GEMINI_KEY'));
+// Add other connectors...
+
+final openai = manager.openai;
+final gemini = manager.gemini;
+// Use connectors as shown in the examples above
+```
 
 ```dart
 import 'package:gen_connect/connectors/openai/openai_connector.dart';
@@ -170,6 +190,15 @@ final customVideoResponse = await custom.sendVideo('path/to/video.mp4');
 ```
 
 See `/example` for more advanced usage and all available use-case connectors.
+
+## Advanced Usage
+
+See `/example/main.dart` for how to:
+
+- Instantiate and register multiple connectors
+- Select and use different model versions via enums
+- Call usecases (text, image, audio, code, etc.) for each provider
+- Handle errors and responses in a unified way
 
 ## Tips & Precautions
 

@@ -1,101 +1,160 @@
+import 'package:gen_connect/connectors/openai/models/gpt3_5Turbo.dart';
+import 'package:gen_connect/connectors/openai/models/gpt4.dart';
+import 'package:gen_connect/connectors/openai/models/gpt4_1.dart';
+import 'package:gen_connect/connectors/openai/models/gpt4o.dart';
+import 'package:gen_connect/connectors/openai/models/gptImage1.dart';
+import 'package:gen_connect/connectors/openai/models/gptOss120b.dart';
+import 'package:gen_connect/connectors/openai/models/gptOss20b.dart';
+import 'package:gen_connect/connectors/openai/models/o3.dart';
+import 'package:gen_connect/connectors/openai/models/o3Mini.dart';
+import 'package:gen_connect/connectors/openai/models/o3Pro.dart';
+import 'package:gen_connect/connectors/openai/models/o4Mini.dart';
+import 'package:gen_connect/connectors/openai/models/textEmbeddingAda002.dart';
+import 'package:gen_connect/connectors/openai/usecase/file_model_connector.dart';
+import 'package:gen_connect/core/constants/api.dart';
 import 'package:gen_connect/enums/models.dart';
 import 'package:gen_connect/enums/openai.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../core/errors.dart';
 
-import 'usecase/ai_model_connector.dart';
+import '../../repo/ai_model_connector.dart';
+import 'usecase/chat_model_connector.dart';
+import 'usecase/reasoning_model_connector.dart';
+import 'usecase/image_model_connector.dart';
+import 'usecase/audio_model_connector.dart';
+import 'usecase/embedding_model_connector.dart';
+import 'usecase/open_weight_model_connector.dart';
 
-class OpenAIConnector implements AIModelConnector {
+class OpenAIConnector extends AIModelConnector {
+  // Usecase connector instances
+  late final OpenAIChatModelConnector _chatConnector;
+  late final OpenAIReasoningModelConnector _reasoningConnector;
+  late final OpenAIImageModelConnector _imageConnector;
+  late final OpenAIAudioModelConnector _audioConnector;
+  late final OpenAIEmbeddingModelConnector _embeddingConnector;
+  late final OpenAIOpenWeightModelConnector _openWeightConnector;
+  late final OpenAIFileModelConnector _fileConnector;
   final String apiKey;
-  final OpenAIModel model;
 
-  OpenAIConnector({required this.apiKey, this.model = OpenAIModel.gpt3_5Turbo});
+  OpenAIConnector({required this.apiKey}) {
+    _chatConnector = OpenAIChatModelConnector(apiKey: apiKey);
+    _reasoningConnector = OpenAIReasoningModelConnector(apiKey: apiKey);
+    _imageConnector = OpenAIImageModelConnector(apiKey: apiKey);
+    _audioConnector = OpenAIAudioModelConnector(apiKey: apiKey);
+    _embeddingConnector = OpenAIEmbeddingModelConnector(apiKey: apiKey);
+    _fileConnector = OpenAIFileModelConnector(apiKey: apiKey);
+    _openWeightConnector = OpenAIOpenWeightModelConnector(apiKey: apiKey);
+  }
 
   @override
-  String get name => Models.OPENAI.name;
+  Models get name => Models.OPENAI;
 
-  /// Send a prompt to any chat/text/reasoning model (GPT-4, GPT-5, o-series, etc.)
-  @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    final url = Uri.parse('https://api.openai.com/v1/responses');
-    final body = {
-      'model': model.value,
-      'input': systemPrompt != null ? '$systemPrompt\n$prompt' : prompt,
-      if (temperature != null) 'temperature': temperature,
-      if (maxTokens != null) 'max_output_tokens': maxTokens,
-      if (extraOptions != null) ...extraOptions,
-    };
-    final response = await http.post(
+  // class get gpt
+
+  Gpt35turbo get gpt3_5Turbo => Gpt35turbo(
+    openAIChatModelConnector: _chatConnector,
+    openAIFileModelConnector: _fileConnector,
+  );
+
+  Gpt4 get gpt4 => Gpt4(
+    openAIChatModelConnector: _chatConnector,
+    openAIFileModelConnector: _fileConnector,
+  );
+
+  Gpt4_1 get gpt4_1 => Gpt4_1(
+    openAIChatModelConnector: _chatConnector,
+    openAIFileModelConnector: _fileConnector,
+  );
+
+  Gpt4o get gpt4o => Gpt4o(
+    openAIChatModelConnector: _chatConnector,
+    openAIFileModelConnector: _fileConnector,
+  );
+
+  O3 get o3 => O3(openAIReasoningModelConnector: _reasoningConnector);
+  O3mini get o3MIN =>
+      O3mini(openAIReasoningModelConnector: _reasoningConnector);
+
+  O3Pro get o3Pro => O3Pro(openAIReasoningModelConnector: _reasoningConnector);
+
+  O4mini get o4mini =>
+      O4mini(openAIReasoningModelConnector: _reasoningConnector);
+
+  Gptimage1 get gptImage1 =>
+      Gptimage1(openAIImageModelConnector: _imageConnector);
+
+  Gptoss120b get gptoss120b =>
+      Gptoss120b(openAIOpenWeightModelConnector: _openWeightConnector);
+
+  Gptoss20b get gptoss20b =>
+      Gptoss20b(openAIOpenWeightModelConnector: _openWeightConnector);
+
+  Textembeddingada002 get textembeddingada002 =>
+      Textembeddingada002(openAIEmbeddingModelConnector: _embeddingConnector);
+
+  Future<String> getModelInfo(String modelName) async {
+    final url = Uri.parse('https://api.openai.com/v1/models/$modelName');
+    final response = await http.get(
       url,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $apiKey',
       },
-      body: jsonEncode(body),
     );
-
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['output']?[0]?['content']?[0]?['text'] ?? '';
+      return response.body;
     } else {
       throw APIException(
-        'OpenAI API error: ${response.statusCode} ${response.body}',
+        'OpenAI getModelInfo error: ${response.statusCode} ${response.body}',
         statusCode: response.statusCode,
       );
     }
   }
 
-  /// Send an image for multimodal models (e.g., GPT-4o, GPT Image 1)
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement image upload for multimodal models
-    throw AIConnectorError('OpenAI image upload not implemented');
+  /// List models
+  Future<String> listModels() async {
+    final url = Uri.parse('https://api.openai.com/v1/models');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw APIException(
+        'OpenAI listModels error: ${response.statusCode} ${response.body}',
+        statusCode: response.statusCode,
+      );
+    }
   }
 
-  /// Send audio for speech/voice models (e.g., GPT-4o audio)
-  Future<String> sendAudio(
-    String audioPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement audio upload for speech models
-    throw AIConnectorError('OpenAI audio upload not implemented');
+  /// Get usage statistics
+  Future<String> getUsage() async {
+    final url = Uri.parse('https://api.openai.com/v1/dashboard/billing/usage');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw APIException(
+        'OpenAI getUsage error: ${response.statusCode} ${response.body}',
+        statusCode: response.statusCode,
+      );
+    }
   }
 
-  /// Send a document for open-weight or custom models
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement document upload for open-weight models
-    throw AIConnectorError('OpenAI document upload not implemented');
-  }
-
-  /// Get embeddings for embedding/vector models
-  Future<List<double>> getEmbedding(
-    String input, {
-    String embeddingModel = 'text-embedding-ada-002',
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    final url = Uri.parse('https://api.openai.com/v1/embeddings');
-    final body = {
-      'model': embeddingModel,
-      'input': input,
-      if (extraOptions != null) ...extraOptions,
-    };
+  Future<String> moderateContent(String input) async {
+    final url = Uri.parse(ApiConstants.moderateOpenAIContent());
+    final body = {'input': input};
     final response = await http.post(
       url,
       headers: {
@@ -105,43 +164,62 @@ class OpenAIConnector implements AIModelConnector {
       body: jsonEncode(body),
     );
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return List<double>.from(data['data']?[0]?['embedding'] ?? []);
-    } else {
-      throw Exception(
-        'OpenAI Embedding API error: ${response.statusCode} ${response.body}',
-      );
-    }
-  }
-
-  /// For open-weight models, allow custom endpoint
-  Future<String> sendToCustomEndpoint(
-    String endpoint,
-    Map<String, dynamic> payload,
-  ) async {
-    final url = Uri.parse(endpoint);
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
-    if (response.statusCode == 200) {
       return response.body;
     } else {
       throw Exception(
-        'Custom endpoint error: ${response.statusCode} ${response.body}',
+        'OpenAI moderateContent error: ${response.statusCode} ${response.body}',
       );
     }
   }
 
-  /// Send a file for file-supported models
-  @override
-  Future<String> sendFile(
-    String filePath, {
+  Future<String> translateAudio(
+    String audioPath, {
+    Map<String, dynamic>? extraOptions,
+  }) async {
+    final url = Uri.parse('https://api.openai.com/v1/audio/translations');
+    var request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $apiKey';
+    request.files.add(await http.MultipartFile.fromPath('file', audioPath));
+    if (extraOptions != null) {
+      extraOptions.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+    }
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw APIException(
+        'OpenAI audio translation error: ${response.statusCode} ${response.body}',
+        statusCode: response.statusCode,
+      );
+    }
+  }
+
+  Future<String> sendAudiotoText(
+    String audioPath, {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    // TODO: Implement file upload for OpenAI models if supported
-    throw UnimplementedError('OpenAI file upload not implemented');
+    final url = Uri.parse('https://api.openai.com/v1/audio/transcriptions');
+    var request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $apiKey';
+    request.files.add(await http.MultipartFile.fromPath('file', audioPath));
+    if (extraOptions != null) {
+      extraOptions.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+    }
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw APIException(
+        'OpenAI audio error: ${response.statusCode} ${response.body}',
+        statusCode: response.statusCode,
+      );
+    }
   }
 }

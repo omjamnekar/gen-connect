@@ -1,96 +1,31 @@
-import 'package:gen_connect/enums/gemini.dart';
-import 'package:gen_connect/enums/models.dart';
+import 'models/gemini2_5pro.dart';
+import 'models/gemini2_5flash.dart';
+import 'models/gemini2_5flashlite.dart';
+import 'models/gemini2_5flashlitepreview.dart';
+import 'models/gemini2_5flashlive.dart';
+import 'models/gemini2_0flash.dart';
+import 'models/gemini2_0flashlite.dart';
+import 'models/gemini2_0flashlitepreview.dart';
+import '../../enums/gemini.dart';
+import '../../enums/models.dart';
+import '../../repo/ai_model_connector.dart';
 
-import '../openai/usecase/ai_model_connector.dart';
-import 'usecase/text_model_connector.dart';
-import 'usecase/image_model_connector.dart';
-import 'usecase/audio_model_connector.dart';
-import 'usecase/video_model_connector.dart';
-
-class GeminiConnector implements AIModelConnector {
+class GeminiConnector extends AIModelConnector {
   final String apiKey;
-  final GeminiModel model;
 
-  late final GeminiTextModelConnector _textConnector;
-  late final GeminiImageModelConnector _imageConnector;
-  late final GeminiAudioModelConnector _audioConnector;
-  late final GeminiVideoModelConnector _videoConnector;
+  GeminiConnector({required this.apiKey});
 
-  GeminiConnector({required this.apiKey, required this.model}) {
-    _textConnector = GeminiTextModelConnector(apiKey: apiKey, model: model);
-    _imageConnector = GeminiImageModelConnector(apiKey: apiKey, model: model);
-    _audioConnector = GeminiAudioModelConnector(apiKey: apiKey, model: model);
-    _videoConnector = GeminiVideoModelConnector(apiKey: apiKey, model: model);
-  }
-
-  @override
-  String get name => Models.GEMINI.name;
+  GeminiPro get pro => GeminiPro(apiKey: apiKey);
+  Gemini2_5Flash get flash => Gemini2_5Flash(apiKey: apiKey);
+  Gemini2_5FlashLite get flashLite => Gemini2_5FlashLite(apiKey: apiKey);
+  Gemini2_5FlashLitePreview get flashLitePreview =>
+      Gemini2_5FlashLitePreview(apiKey: apiKey);
+  Gemini2_5FlashLive get flashLive => Gemini2_5FlashLive(apiKey: apiKey);
+  Gemini2_0Flash get flash2_0 => Gemini2_0Flash(apiKey: apiKey);
+  Gemini2_0FlashLite get flash2_0Lite => Gemini2_0FlashLite(apiKey: apiKey);
+  Gemini2_0FlashLitePreview get flash2_0LitePreview =>
+      Gemini2_0FlashLitePreview(apiKey: apiKey);
 
   @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    return _textConnector.sendPrompt(
-      prompt,
-      temperature: temperature,
-      maxTokens: maxTokens,
-      systemPrompt: systemPrompt,
-      extraOptions: extraOptions,
-    );
-  }
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Gemini file upload not supported');
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    return _imageConnector.sendImage(
-      imagePath,
-      prompt: prompt,
-      extraOptions: extraOptions,
-    );
-  }
-
-  Future<String> sendAudio(
-    String audioPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    return _audioConnector.sendAudio(
-      audioPath,
-      prompt: prompt,
-      extraOptions: extraOptions,
-    );
-  }
-
-  Future<String> sendVideo(
-    String videoPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    return _videoConnector.sendVideo(
-      videoPath,
-      prompt: prompt,
-      extraOptions: extraOptions,
-    );
-  }
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Gemini document upload not supported');
+  Models get name => Models.GEMINI;
 }

@@ -1,14 +1,18 @@
+import 'dart:convert';
+
 import 'package:gen_connect/enums/grok.dart';
 import 'package:gen_connect/enums/models.dart';
-import '../../openai/usecase/ai_model_connector.dart';
+import 'package:http/http.dart' as http;
+import '../../../repo/ai_model_connector.dart';
 import '../../../core/errors.dart';
+import 'package:gen_connect/core/constants/api.dart';
 
 final Set<GrokModel> grokCodeModels = {
   GrokModel.grokCodeFast1,
   GrokModel.grok4Fast,
 };
 
-class GrokCodeModelConnector implements AIModelConnector {
+class GrokCodeModelConnector {
   final String apiKey;
   final GrokModel model;
 
@@ -20,45 +24,28 @@ class GrokCodeModelConnector implements AIModelConnector {
     }
   }
 
-  @override
   String get name => Models.GROK.name;
 
   Future<String> sendCode(
     String code, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    // TODO: Implement Grok code model API call
-    return 'Grok code response to: "$code" | model: ${model.value}';
+    final url = ApiConstants.getXaiCodeCompletions();
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'code': code, ...?extraOptions}),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception(
+        'Grok code API error: ${response.statusCode} ${response.body}',
+      );
+    }
   }
-
-  @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async =>
-      throw AIConnectorError('Text input not supported for code models');
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Image input not supported');
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
 }

@@ -1,3 +1,4 @@
+
 name: Dart CI
 
 on:
@@ -6,9 +7,11 @@ on:
   pull_request:
     branches: [main, master, fix/cleanup-models]
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

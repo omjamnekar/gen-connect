@@ -1,56 +1,44 @@
-import 'package:gen_connect/connectors/openai/usecase/ai_model_connector.dart';
-import '../../../core/errors.dart';
-import 'package:gen_connect/enums/meta.dart';
-import 'package:gen_connect/enums/models.dart';
+import 'dart:convert';
 
-final Set<MetaModel> metaImageModels = {MetaModel.llama3Large};
+import 'package:gen_connect/core/errors.dart';
+import 'package:http/http.dart' as http;
 
-class MetaImageModelConnector implements AIModelConnector {
+class MetaImageModelConnector {
   final String apiKey;
-  final MetaModel model;
 
-  MetaImageModelConnector({required this.apiKey, required this.model}) {
-    if (!metaImageModels.contains(model)) {
-      throw AIConnectorError(
-        'Model ${model.value} is not image-capable. Allowed: ${metaImageModels.map((m) => m.value).join(", ")}',
+  MetaImageModelConnector({required this.apiKey});
+
+  Future<String> generateImage(
+    String prompt, {
+    Map<String, dynamic>? extraOptions,
+  }) async {
+    try {
+      final uri = Uri.parse('https://api.meta.ai/v1/image/generate');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'prompt': prompt,
+          if (extraOptions != null) ...extraOptions,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['image_url'] ?? '';
+      } else {
+        throw APIException(
+          'Meta image generation error: ${response.statusCode}',
+          innerException: Exception(response.body),
+        );
+      }
+    } catch (e) {
+      throw APIException(
+        'Meta image model error',
+        innerException: e is Exception ? e : Exception(e.toString()),
       );
     }
   }
-
-  @override
-  String get name => Models.META.name;
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async {
-    // TODO: Implement Meta image model API call
-    return 'Meta image response to: "$imagePath" | model: ${model.value}';
-  }
-
-  @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async =>
-      throw AIConnectorError('Text input not supported for image models');
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
 }

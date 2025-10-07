@@ -1,7 +1,8 @@
 import 'package:gen_connect/enums/grok.dart';
 import 'package:gen_connect/enums/models.dart';
-import '../../openai/usecase/ai_model_connector.dart';
 import '../../../core/errors.dart';
+import 'package:gen_connect/core/constants/api.dart';
+import 'package:http/http.dart' as http;
 
 final Set<GrokModel> grokTextModels = {
   GrokModel.grok2Mini,
@@ -12,7 +13,7 @@ final Set<GrokModel> grokTextModels = {
   GrokModel.grok4Heavy,
 };
 
-class GrokTextModelConnector implements AIModelConnector {
+class GrokTextModelConnector {
   final String apiKey;
   final GrokModel model;
 
@@ -24,10 +25,8 @@ class GrokTextModelConnector implements AIModelConnector {
     }
   }
 
-  @override
   String get name => Models.GROK.name;
 
-  @override
   Future<String> sendPrompt(
     String prompt, {
     double? temperature,
@@ -35,35 +34,29 @@ class GrokTextModelConnector implements AIModelConnector {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    try {
-      // TODO: Implement Grok text model API call
-      return 'Grok text response to: "$prompt" | model: ${model.value}';
-    } catch (e) {
+    final url = ApiConstants.getXaiChatCompletions();
+    final body = {
+      'model': model.value,
+      'prompt': prompt,
+      if (temperature != null) 'temperature': temperature,
+      if (maxTokens != null) 'max_tokens': maxTokens,
+      if (systemPrompt != null) 'system_prompt': systemPrompt,
+      if (extraOptions != null) ...extraOptions,
+    };
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: body.isNotEmpty ? body.toString() : null,
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
       throw APIException(
-        'Grok text model error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'Grok text model error: ${response.statusCode} ${response.body}',
       );
     }
   }
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Image input not supported');
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
 }

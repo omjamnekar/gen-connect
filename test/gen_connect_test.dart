@@ -1,29 +1,27 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-// ...existing code...
 import 'package:gen_connect/connectors/anthropic/anthropic_connector.dart';
 import 'package:gen_connect/connectors/openai/openai_connector.dart';
 import 'package:gen_connect/connectors/openai/usecase/reasoning_model_connector.dart';
 import 'package:gen_connect/connectors/gemini/gemini_connector.dart';
-import 'package:gen_connect/enums/gemini.dart';
 import 'package:gen_connect/enums/models.dart';
 import 'package:gen_connect/enums/openai.dart';
-import 'package:gen_connect/gen_connect.dart';
+import 'package:gen_connect/gen_manager.dart';
 
-void main() async {
+void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  group('GenConnectManager', () {
-    final openAIKey = dotenv.env['OPEN_AI_KEY'] ?? "test-key";
-    final geminiAIKey = dotenv.env['GEMINI_KEY'] ?? "test-key";
 
-    test('can add and retrieve connectors', () async {
-      final manager = GenConnectManager();
-      final openAI = OpenAIConnector(
-        apiKey: openAIKey,
-        model: OpenAIModel.gpt3_5Turbo,
-      );
-      print(openAIKey);
+  setUpAll(() async {
+    await dotenv.load(fileName: ".env");
+  });
+
+  final openAIKey = dotenv.env['OPEN_AI_KEY'] ?? "test-key";
+  final geminiAIKey = dotenv.env['GEMINI_KEY'] ?? "test-key";
+
+  group('GenConnectManager', () {
+    test('should add and retrieve connectors', () {
+      final manager = GenConnectManager.getInstance();
+      final openAI = OpenAIConnector(apiKey: openAIKey);
       final anthropic = AnthropicConnector(apiKey: 'test-key');
       manager.addConnector(openAI);
       manager.addConnector(anthropic);
@@ -31,78 +29,89 @@ void main() async {
         manager.availableModels,
         containsAll([Models.OPENAI.name, Models.CLAUDE.name]),
       );
-      expect(manager.getConnector(Models.OPENAI), isA<OpenAIConnector>());
-      expect(manager.getConnector(Models.CLAUDE), isA<AnthropicConnector>());
+      expect(manager.openai, isA<OpenAIConnector>());
+      expect(manager.anthropic, isA<AnthropicConnector>());
     });
 
-    test('can send prompt to OpenAI', () async {
-      final manager = GenConnectManager();
-      final openAI = OpenAIConnector(
-        apiKey: openAIKey,
-        model: OpenAIModel.gpt3_5Turbo,
-      );
+    test('should send prompt to OpenAI', () async {
+      final manager = GenConnectManager.getInstance();
+      final openAI = OpenAIConnector(apiKey: openAIKey);
       manager.addConnector(openAI);
-      final response = await manager.sendPrompt(Models.OPENAI.name, 'Hello!');
-      expect(response, contains('OpenAI response'));
+      final response = await manager.openai?.gpt3_5Turbo.sendPrompt('Hello!');
+      expect(response, isA<String>());
     });
 
-    test('can send prompt to Anthropic', () async {
-      final manager = GenConnectManager();
+    test('should send prompt to Anthropic', () async {
+      final manager = GenConnectManager.getInstance();
       final anthropic = AnthropicConnector(apiKey: 'test-key');
       manager.addConnector(anthropic);
-      final response = await manager.sendPrompt(Models.CLAUDE.name, 'Hello!');
-      expect(response, contains('Anthropic response'));
+      final response = await manager.anthropic?.claude2.text.generateText(
+        'Hello!',
+      );
+      expect(response, isA<String>());
     });
 
-    test('can send prompt to Gemini', () async {
-      final manager = GenConnectManager();
-      final gemini = GeminiConnector(
-        apiKey: geminiAIKey,
-        model: GeminiModel.gemini2_0Flash,
-      );
+    test('should send prompt to Gemini', () async {
+      final manager = GenConnectManager.getInstance();
+      final gemini = GeminiConnector(apiKey: geminiAIKey);
       manager.addConnector(gemini);
       try {
-        final response = await manager.sendPrompt('Gemini', 'Hello Gemini!');
-        // Gemini API will fail with test-key, so we expect an exception
-        expect(response, isNotNull);
+        final response = await manager.gemini?.flash2_0.text.generateText(
+          'Hello Gemini!',
+        );
+        expect(response, isA<String>());
       } catch (e) {
-        expect(e.toString(), contains('Gemini API error'));
+        expect(e.toString(), contains('Failed to generate text'));
       }
     });
 
-    test('Gemini file upload throws', () async {
-      final gemini = GeminiConnector(
-        apiKey: geminiAIKey,
-        model: GeminiModel.gemini2_0Flash,
-      );
-      expect(() => gemini.sendFile('file.txt'), throwsUnimplementedError);
-    });
-
-    test('Gemini image upload throws', () async {
-      final gemini = GeminiConnector(
-        apiKey: geminiAIKey,
-        model: GeminiModel.gemini2_0FlashLite,
-      );
-      expect(() => gemini.sendImage('image.png'), throwsUnimplementedError);
-    });
-
-    test('Gemini document upload throws', () async {
-      final gemini = GeminiConnector(
-        apiKey: geminiAIKey,
-        model: GeminiModel.gemini2_0FlashLite,
-      );
-      expect(() => gemini.sendDocument('doc.pdf'), throwsUnimplementedError);
-    });
-
-    test('can send prompt to OpenAI Reasoning Model', () async {
-      final connector = OpenAIReasoningModelConnector(
-        apiKey: openAIKey,
-        model: OpenAIModel.gpt4,
-      );
+    test('Gemini file upload', () async {
+      final gemini = GeminiConnector(apiKey: geminiAIKey);
+      final fileUsecase = gemini.flash2_0.file;
       try {
-        final response = await connector.sendPrompt('Test reasoning prompt');
-        // With a fake key, expect an exception
-        expect(response, isNotNull);
+        final response = await fileUsecase.uploadFile(
+          'base64string',
+          'file.txt',
+        );
+        expect(response, isA<String>());
+      } catch (e) {
+        expect(e.toString(), contains('Failed to upload file'));
+      }
+    });
+
+    test('Gemini image upload', () async {
+      final gemini = GeminiConnector(apiKey: geminiAIKey);
+      final imageUsecase = gemini.flash2_0Lite.image;
+      try {
+        final response = await imageUsecase.generateImage('image prompt');
+        expect(response, isA<String>());
+      } catch (e) {
+        expect(e.toString(), contains('Failed to generate image'));
+      }
+    });
+
+    test('Gemini document upload', () async {
+      final gemini = GeminiConnector(apiKey: geminiAIKey);
+      final docUsecase = gemini.flash2_0Lite.document;
+      try {
+        final response = await docUsecase.uploadDocument(
+          'base64string',
+          'doc.pdf',
+        );
+        expect(response, isA<String>());
+      } catch (e) {
+        expect(e.toString(), contains('Failed to upload document'));
+      }
+    });
+
+    test('should send prompt to OpenAI Reasoning Model', () async {
+      final connector = OpenAIReasoningModelConnector(apiKey: openAIKey);
+      try {
+        final response = await connector.sendPromptReasoning(
+          'Test reasoning prompt',
+          OpenAIModel.gpt4,
+        );
+        expect(response, isA<String>());
       } catch (e) {
         expect(e.toString(), contains('OpenAI Reasoning API error'));
       }

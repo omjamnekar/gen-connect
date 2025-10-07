@@ -1,11 +1,12 @@
 import 'package:gen_connect/enums/grok.dart';
 import 'package:gen_connect/enums/models.dart';
-import '../../openai/usecase/ai_model_connector.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/errors.dart';
+import 'package:gen_connect/core/constants/api.dart';
 
 final Set<GrokModel> grokAudioModels = {GrokModel.grok4};
 
-class GrokAudioModelConnector implements AIModelConnector {
+class GrokAudioModelConnector {
   final String apiKey;
   final GrokModel model;
 
@@ -17,7 +18,6 @@ class GrokAudioModelConnector implements AIModelConnector {
     }
   }
 
-  @override
   String get name => Models.GROK.name;
 
   Future<String> sendAudio(
@@ -25,38 +25,32 @@ class GrokAudioModelConnector implements AIModelConnector {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    // TODO: Implement Grok audio model API call
-    return 'Grok audio response to: "$audioPath" | model: ${model.value}';
+    final url = ApiConstants.getXaiAudioTranscriptions();
+    // Make sure to add `http` to your pubspec.yaml dependencies
+    // import 'package:http/http.dart' as http; at the top of your file
+
+    final request = http.MultipartRequest('POST', Uri.parse(url));
+    request.headers['Authorization'] = 'Bearer $apiKey';
+    request.files.add(await http.MultipartFile.fromPath('file', audioPath));
+
+    if (prompt != null) {
+      request.fields['prompt'] = prompt;
+    }
+    if (extraOptions != null) {
+      extraOptions.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception(
+        'Grok audio API error: ${response.statusCode} ${response.body}',
+      );
+    }
   }
-
-  @override
-  Future<String> sendPrompt(
-    String prompt, {
-    double? temperature,
-    int? maxTokens,
-    String? systemPrompt,
-    Map<String, dynamic>? extraOptions,
-  }) async =>
-      throw AIConnectorError('Text input not supported for audio models');
-
-  @override
-  Future<String> sendFile(
-    String filePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('File upload not supported');
-
-  @override
-  Future<String> sendImage(
-    String imagePath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Image input not supported');
-
-  @override
-  Future<String> sendDocument(
-    String documentPath, {
-    String? prompt,
-    Map<String, dynamic>? extraOptions,
-  }) async => throw UnimplementedError('Document upload not supported');
 }

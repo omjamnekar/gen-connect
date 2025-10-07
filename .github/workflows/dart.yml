@@ -1,0 +1,58 @@
+name: Dart CI
+
+on:
+  push:
+    branches: [main, master, fix/cleanup-models]
+  pull_request:
+    branches: [main, master, fix/cleanup-models]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Analyze
+        run: dart analyze
+
+  publish-dry-run:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Dry run publish
+        run: dart pub publish --dry-run
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Publish package
+        env:
+          PUB_DEV_ACCESS_TOKEN: ${{ secrets.PUB_DEV_ACCESS_TOKEN }}
+        run: echo "$PUB_DEV_ACCESS_TOKEN" | dart pub publish --force

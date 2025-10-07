@@ -1,5 +1,4 @@
 import 'package:gen_connect/enums/models.dart';
-import 'package:gen_connect/enums/palm.dart';
 import 'package:gen_connect/repo/ai_model_connector.dart';
 import 'models/palm.dart';
 import 'models/palm2.dart';
@@ -149,6 +148,5 @@ class PalmConnector extends AIModelConnector {
   );
 
   @override
-  // TODO: implement name
   Models get name => Models.PALM;
 }

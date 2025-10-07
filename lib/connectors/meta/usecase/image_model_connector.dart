@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:gen_connect/core/errors.dart';
-import 'package:gen_connect/enums/meta.dart';
-import 'package:gen_connect/enums/models.dart';
 import 'package:http/http.dart' as http;
 
 class MetaImageModelConnector {

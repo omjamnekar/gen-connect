@@ -6,7 +6,7 @@ import 'models/gemini2_5flashlive.dart';
 import 'models/gemini2_0flash.dart';
 import 'models/gemini2_0flashlite.dart';
 import 'models/gemini2_0flashlitepreview.dart';
-import '../../enums/gemini.dart';
+
 import '../../enums/models.dart';
 import '../../repo/ai_model_connector.dart';
 

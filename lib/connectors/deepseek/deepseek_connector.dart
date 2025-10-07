@@ -4,7 +4,6 @@ import 'models/deepseek_chat_model.dart';
 import 'models/deepseek_math_model.dart';
 import 'models/deepseek_coder_model.dart';
 import 'models/deepseek_vision_model.dart';
-import 'models/deepseek_audio_model.dart';
 import 'package:gen_connect/enums/models.dart';
 import 'package:gen_connect/repo/ai_model_connector.dart';
 // ...existing code...

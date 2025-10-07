@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 enum Models {
   GEMINI('Gemini'),
   GPT_3('GPT-3'),

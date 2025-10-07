@@ -1,6 +1,5 @@
 import '../usecase/text_model_connector.dart';
 import '../usecase/image_model_connector.dart';
-import 'package:gen_connect/enums/grok.dart';
 
 import '../usecase/embedding_model_connector.dart';
 import '../usecase/file_model_connector.dart';

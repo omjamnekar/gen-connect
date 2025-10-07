@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gen_connect/connectors/openai/openai_connector.dart';
 import 'package:gen_connect/connectors/gemini/gemini_connector.dart';
@@ -6,13 +7,8 @@ import 'package:gen_connect/connectors/anthropic/anthropic_connector.dart';
 import 'package:gen_connect/connectors/deepseek/deepseek_connector.dart';
 import 'package:gen_connect/connectors/palm/palm_connector.dart';
 import 'package:gen_connect/connectors/grok/grok_connector.dart';
-import 'package:gen_connect/enums/deepseek.dart';
-import 'package:gen_connect/enums/gemini.dart';
-import 'package:gen_connect/enums/grok.dart';
+
 import 'package:gen_connect/enums/meta.dart';
-import 'package:gen_connect/enums/models.dart';
-import 'package:gen_connect/enums/openai.dart';
-import 'package:gen_connect/enums/palm.dart';
 import 'package:gen_connect/gen_manager.dart';
 
 class Logger {
@@ -20,7 +16,9 @@ class Logger {
   Logger(this.name);
 
   void info(String message) {
-    print('[$name] $message');
+    if (kDebugMode) {
+      print('[$name] $message');
+    }
   }
 }
 
@@ -150,8 +148,6 @@ class _AiImplementntationState extends State<AiImplementntation> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(body: Container(child: Text("Hello"))),
-    );
+    return MaterialApp(home: Scaffold(body: Text("Hello")));
   }
 }

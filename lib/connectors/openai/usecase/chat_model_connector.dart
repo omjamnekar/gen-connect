@@ -1,6 +1,5 @@
 import 'package:gen_connect/enums/openai.dart';
 import 'package:gen_connect/enums/models.dart';
-import '../../../repo/ai_model_connector.dart';
 import '../../../core/errors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;

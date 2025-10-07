@@ -12,6 +12,7 @@ import '../usecases/attachment.dart';
 import '../usecases/reasoning.dart';
 import '../../../enums/gemini.dart';
 
+// ignore: camel_case_types
 class Gemini2_5FlashLite {
   final String apiKey;
   final GeminiModel model;

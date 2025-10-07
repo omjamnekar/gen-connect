@@ -2,6 +2,7 @@ import 'package:gen_connect/connectors/openai/usecase/chat_model_connector.dart'
 import 'package:gen_connect/connectors/openai/usecase/file_model_connector.dart';
 import 'package:gen_connect/enums/openai.dart';
 
+// ignore: camel_case_types
 class Gpt4_1 {
   final OpenAIChatModelConnector openAIChatModelConnector;
   final OpenAIFileModelConnector openAIFileModelConnector;

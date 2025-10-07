@@ -1,5 +1,4 @@
 import 'package:gen_connect/enums/openai.dart';
-import 'package:gen_connect/enums/models.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/constants/api.dart';
 
@@ -40,7 +39,7 @@ class OpenAIFileModelConnector {
   }
 
   Future<String> deleteFile(String fileId) async {
-    final url = Uri.parse(ApiConstants.getOpenAIFiles() + '/$fileId');
+    final url = Uri.parse('${ApiConstants.getOpenAIFiles()}/$fileId');
     final response = await http.delete(
       url,
       headers: {'Authorization': 'Bearer $apiKey'},
@@ -55,7 +54,7 @@ class OpenAIFileModelConnector {
   }
 
   Future<String> getFileInfo(String fileId) async {
-    final url = Uri.parse(ApiConstants.getOpenAIFiles() + '/$fileId');
+    final url = Uri.parse('${ApiConstants.getOpenAIFiles()}/$fileId');
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer $apiKey'},

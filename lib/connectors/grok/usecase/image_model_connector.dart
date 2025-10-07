@@ -1,7 +1,6 @@
 import 'package:gen_connect/enums/grok.dart';
 import 'package:gen_connect/enums/models.dart';
 import 'package:http/http.dart' as http;
-import '../../../repo/ai_model_connector.dart';
 import '../../../core/errors.dart';
 import 'package:gen_connect/core/constants/api.dart';
 

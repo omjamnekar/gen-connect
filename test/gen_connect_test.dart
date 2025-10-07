@@ -4,7 +4,6 @@ import 'package:gen_connect/connectors/anthropic/anthropic_connector.dart';
 import 'package:gen_connect/connectors/openai/openai_connector.dart';
 import 'package:gen_connect/connectors/openai/usecase/reasoning_model_connector.dart';
 import 'package:gen_connect/connectors/gemini/gemini_connector.dart';
-import 'package:gen_connect/enums/gemini.dart';
 import 'package:gen_connect/enums/models.dart';
 import 'package:gen_connect/enums/openai.dart';
 import 'package:gen_connect/gen_manager.dart';

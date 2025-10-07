@@ -1,3 +1,4 @@
+// ignore_for_file: file_names
 import 'package:gen_connect/connectors/openai/usecase/image_model_connector.dart';
 import 'package:gen_connect/enums/openai.dart';
 

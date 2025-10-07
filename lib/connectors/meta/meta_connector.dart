@@ -15,7 +15,6 @@ import 'package:gen_connect/connectors/meta/usecase/token_model_connector.dart';
 import 'package:gen_connect/connectors/meta/usecase/tool_model_connector.dart';
 import 'package:gen_connect/enums/models.dart';
 import '../../repo/ai_model_connector.dart';
-import '../../core/errors.dart';
 import 'package:gen_connect/connectors/meta/models/meta_llama2.dart';
 import 'package:gen_connect/connectors/meta/models/meta_llama3.dart';
 import 'package:gen_connect/connectors/meta/models/meta_llama3_large.dart';

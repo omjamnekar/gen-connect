@@ -1,5 +1,4 @@
 import '../usecase/text_model_connector.dart';
-import 'package:gen_connect/enums/grok.dart';
 
 import '../usecase/embedding_model_connector.dart';
 import '../usecase/file_model_connector.dart';
@@ -12,6 +11,7 @@ import '../usecase/attachment_model_connector.dart';
 import '../usecase/token_model_connector.dart';
 import '../usecase/reasoning_model_connector.dart';
 
+// ignore: camel_case_types
 class Grok2_5 {
   final GrokTextModelConnector textConnector;
   final GrokEmbeddingModelConnector embeddingConnector;

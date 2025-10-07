@@ -13,7 +13,6 @@ import 'package:gen_connect/connectors/openai/models/textEmbeddingAda002.dart';
 import 'package:gen_connect/connectors/openai/usecase/file_model_connector.dart';
 import 'package:gen_connect/core/constants/api.dart';
 import 'package:gen_connect/enums/models.dart';
-import 'package:gen_connect/enums/openai.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../core/errors.dart';
@@ -31,6 +30,7 @@ class OpenAIConnector extends AIModelConnector {
   late final OpenAIChatModelConnector _chatConnector;
   late final OpenAIReasoningModelConnector _reasoningConnector;
   late final OpenAIImageModelConnector _imageConnector;
+  // ignore: unused_field
   late final OpenAIAudioModelConnector _audioConnector;
   late final OpenAIEmbeddingModelConnector _embeddingConnector;
   late final OpenAIOpenWeightModelConnector _openWeightConnector;

@@ -1,6 +1,5 @@
 import 'package:gen_connect/connectors/claude/usecase/chat_model_connector.dart';
 import 'package:gen_connect/enums/claude.dart';
-import 'package:gen_connect/enums/models.dart';
 
 class ClaudeV1 {
   final CloudeChatModelConnector chatConnector;

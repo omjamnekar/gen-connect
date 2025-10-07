@@ -1,4 +1,4 @@
-<img src="gen_connect.png" alt="gen_connect logo"   />
+![gen_connect logo](gen_connect.png)
 
 gen_connect is a modular Dart/Flutter package for integrating any AI model/provider (OpenAI, Gemini, Anthropic, Meta, Grok, DeepSeek, PaLM, and custom models) into your app with type-safe, scalable connectors and unified error handling.
 
@@ -209,9 +209,34 @@ See `/example/main.dart` for how to:
 - **Keep dependencies updated:** Regularly update this package and your dependencies for security and new features.
 - **Respect provider terms:** Follow the terms of service and usage policies for each AI provider.
 
+## Architecture Pattern
+
+The gen_connect package uses a modular, connector-based architecture for scalable AI integration. Each provider (OpenAI, Gemini, Grok, etc.) has its own connector, and each model is exposed via type-safe classes and enums. Use cases (text, image, audio, code, etc.) are implemented as dedicated methods or sub-connectors, ensuring only supported features are available for each model.
+
+Below is a high-level diagram of the architecture:
+
+![Gen Connector Architecture](arch.png)
+
+**Pattern Highlights:**
+
+- **GenConnectManager**: Centralized manager for all connectors, allowing easy registration and access to any provider/model.
+- **Provider Connectors**: Each provider (OpenAI, Gemini, Grok, etc.) has a dedicated connector class exposing only supported models and use cases.
+- **Model Classes**: Each model (e.g., gpt4, gemini2_5Pro) is represented by a class with strict, type-safe access to supported features.
+- **Usecase Methods**: Only valid use cases (text, image, audio, code, etc.) are exposed for each model, preventing runtime errors and enforcing API limits.
+- **Extensibility**: Easily add new providers, models, or use cases by implementing new connectors and model classes.
+- **Unified Error Handling**: All connectors use a common error/exception pattern for consistent handling across providers.
+
+This pattern ensures:
+
+- Type safety and compile-time feature restriction
+- Easy extension for new models/providers
+- Unified, scalable integration for any AI API
+
+See the diagram above for a visual overview of how connectors, models, and use cases are organized.
+
 ## Contributing & Support
 
-- Issues and feature requests: [GitHub Issues](https://github.com/your-org/gen_connect/issues)
+- **Source code & repository:** [GitHub Repository](https://github.com/omjamnekar/gen-connect) – access the full codebase, submit issues, and contribute directly.- Issues and feature requests: [GitHub Issues](https://github.com/omjamnekar/gen-connect/issues)
 - Pull requests welcome!
 - See CHANGELOG.md for release history.
 

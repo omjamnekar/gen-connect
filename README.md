@@ -17,45 +17,16 @@ gen_connect is a modular Dart/Flutter package for integrating any AI model/provi
 
 ## Supported Models by Provider
 
-### OpenAI
-
-Models: gpt4, gpt3, gpt4-turbo, gpt-vision, gpt-image-1, whisper, dall-e, code-davinci, etc.
-Methods: sendPrompt, sendImage, sendAudio, sendCode
-
-### Gemini
-
-Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.5-pro, gemini-pro-vision, etc.
-Methods: sendPrompt, sendImage, sendAudio
-
-### Meta
-
-Models: llama2, llama3, llama-guard, etc.
-Methods: sendPrompt, sendImage
-
-### Claude
-
-Models: claude-2, claude-3, claude-1, etc.
-Methods: sendPrompt
-
-### Anthropic
-
-Models: claude-3-opus, claude-3-sonnet, claude-3-haiku, etc.
-Methods: sendPrompt
-
-### DeepSeek
-
-Models: deepseek-chat, deepseek-coder, deepseek-vision, etc.
-Methods: sendPrompt, sendCode, sendImage
-
-### PaLM
-
-Models: palm2, codey, chirp, etc.
-Methods: sendPrompt, sendCode, sendAudio
-
-### Grok
-
-Models: grok-1, grok-1.5, grok-2.5, etc.
-Methods: sendPrompt, sendCode
+| Provider      | Models (examples)                                   |
+| ------------- | --------------------------------------------------- |
+| **OpenAI**    | gpt4, gpt3, gpt4-turbo, gpt-vision, dall-e, whisper |
+| **Gemini**    | gemini-1.5-pro, gemini-1.5-flash, gemini-2.5-pro    |
+| **Meta**      | llama2, llama3, llama-guard                         |
+| **Claude**    | claude-2, claude-3, claude-1                        |
+| **Anthropic** | claude-3-opus, claude-3-sonnet, claude-3-haiku      |
+| **DeepSeek**  | deepseek-chat, deepseek-coder, deepseek-vision      |
+| **PaLM**      | palm2, codey, chirp                                 |
+| **Grok**      | grok-1, grok-1.5, grok-2.5                          |
 
 ## Features
 

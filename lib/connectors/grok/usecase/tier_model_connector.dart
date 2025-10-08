@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:gen_connect/enums/grok.dart';
+import '../../../core/constants/api.dart';
 
 class GrokTierModelConnector {
   final String apiKey;
@@ -9,7 +10,7 @@ class GrokTierModelConnector {
 
   Future<String> getTier() async {
     // Replace with the actual Grok API endpoint for tier info
-    final uri = Uri.parse('https://api.grok.com/v1/tier?model=${model.name}');
+    final uri = Uri.parse(ApiConstants.grokTierInfo);
 
     final response = await http.get(
       uri,

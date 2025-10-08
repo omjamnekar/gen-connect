@@ -1,10 +1,9 @@
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:gen_connect/enums/grok.dart';
 import 'package:gen_connect/enums/models.dart';
-import 'package:http/http.dart' as http;
 import '../../../core/errors.dart';
 import 'package:gen_connect/core/constants/api.dart';
+import 'package:gen_connect/gen_manager.dart';
 
 final Set<GrokModel> grokCodeModels = {
   GrokModel.grokCodeFast1,
@@ -14,8 +13,10 @@ final Set<GrokModel> grokCodeModels = {
 class GrokCodeModelConnector {
   final String apiKey;
   final GrokModel model;
+  final Dio _dio;
 
-  GrokCodeModelConnector({required this.apiKey, required this.model}) {
+  GrokCodeModelConnector({required this.apiKey, required this.model})
+    : _dio = GenConnectManager.dio {
     if (!grokCodeModels.contains(model)) {
       throw AIConnectorError(
         'Model ${model.value} is not code-capable. Allowed: ${grokCodeModels.map((m) => m.value).join(", ")}',
@@ -29,22 +30,29 @@ class GrokCodeModelConnector {
     String code, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = ApiConstants.getXaiCodeCompletions();
+    try {
+      final body = {'code': code, if (extraOptions != null) ...extraOptions};
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'code': code, ...?extraOptions}),
-    );
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      throw Exception(
-        'Grok code API error: ${response.statusCode} ${response.body}',
+      final response = await _dio.post(
+        ApiConstants.grokCodeGenerate,
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+          },
+        ),
       );
+
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception(
+          'Grok code API error: ${response.statusCode} ${response.data}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error during code API call: $e');
     }
   }
 }

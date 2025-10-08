@@ -1,28 +1,28 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:gen_connect/gen_manager.dart';
+import 'package:gen_connect/core/constants/api.dart';
 
 class GeminiAudioUsecase {
+  final Dio _dio = GenConnectManager.dio;
   final String apiKey;
   final String model;
   GeminiAudioUsecase({required this.apiKey, required this.model});
 
   Future<String> transcribeAudio(String audioBase64) async {
-    final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta2/models/$model:transcribeAudio',
-    );
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'audio': audioBase64}),
+    final response = await _dio.post(
+      ApiConstants.geminiTranscribeAudio(model),
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+      ),
+      data: {'audio': audioBase64},
     );
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['transcription'] ?? '';
+      return response.data['transcription'] ?? '';
     } else {
-      throw Exception('Failed to transcribe audio: \n${response.body}');
+      throw Exception('Failed to transcribe audio: \n${response.data}');
     }
   }
 }

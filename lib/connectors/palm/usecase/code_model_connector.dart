@@ -1,33 +1,36 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:gen_connect/core/constants/api.dart';
+import 'package:gen_connect/gen_manager.dart';
+import 'package:dio/dio.dart';
 
 class PalmCodeModelConnector {
   final String apiKey;
-  PalmCodeModelConnector({required this.apiKey});
+  final Dio _dio;
+
+  PalmCodeModelConnector({required this.apiKey}) : _dio = GenConnectManager.dio;
 
   Future<String> sendCodePrompt(
     String code, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    // Replace with the actual Palm API endpoint for code prompts
-    final uri = Uri.parse('https://api.palm.com/v1/code');
+    final uri = ApiConstants.palmCode;
 
     final body = {'code': code, if (extraOptions != null) ...extraOptions};
 
-    final response = await http.post(
-      uri,
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
+    try {
+      final response = await _dio.post(
+        uri,
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return response.data;
+    } on DioError catch (e) {
       throw Exception(
-        'Failed to send code prompt: \\${response.statusCode} \\${response.body}',
+        'Failed to send code prompt: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }

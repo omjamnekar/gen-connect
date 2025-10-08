@@ -1,34 +1,37 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../../../core/errors.dart';
+import '../../../core/constants/api.dart';
+import 'package:gen_connect/gen_manager.dart';
 
 class MetaFileModelConnector {
   final String apiKey;
-  MetaFileModelConnector({required this.apiKey});
+  final Dio _dio;
+
+  MetaFileModelConnector({required this.apiKey}) : _dio = GenConnectManager.dio;
 
   Future<String> uploadFile(
     String filePath, {
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
-      final uri = Uri.parse('https://api.meta.ai/v1/file/upload');
-      final request = http.MultipartRequest('POST', uri)
-        ..headers['Authorization'] = 'Bearer $apiKey'
-        ..files.add(await http.MultipartFile.fromPath('file', filePath));
-      if (extraOptions != null) {
-        request.fields.addAll(
-          extraOptions.map((k, v) => MapEntry(k, v.toString())),
-        );
-      }
-      final response = await request.send();
-      final respStr = await response.stream.bytesToString();
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(filePath),
+        if (extraOptions != null) ...extraOptions,
+      });
+
+      final response = await _dio.post(
+        ApiConstants.metaFileUpload,
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+      );
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(respStr);
+        final data = response.data;
         return data['file_id'] ?? '';
       } else {
         throw APIException(
           'Meta file upload error: ${response.statusCode}',
-          innerException: Exception(respStr),
+          innerException: Exception(response.data.toString()),
         );
       }
     } catch (e) {

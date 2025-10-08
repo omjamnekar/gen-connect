@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
+import 'package:gen_connect/gen_manager.dart';
 import 'package:gen_connect/enums/openai.dart';
-import 'package:http/http.dart' as http;
+
 import '../../../core/constants/api.dart';
 
 const Set<OpenAIModel> fileCapableModels = {
@@ -11,59 +13,63 @@ const Set<OpenAIModel> fileCapableModels = {
 
 class OpenAIFileModelConnector {
   final String apiKey;
+  final Dio _dio;
 
-  OpenAIFileModelConnector({required this.apiKey});
+  OpenAIFileModelConnector({required this.apiKey})
+    : _dio = GenConnectManager.dio;
 
   Future<String> uploadFiletoText(
     String filePath, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = Uri.parse(ApiConstants.getOpenAIFiles());
-    var request = http.MultipartRequest('POST', url)
-      ..headers['Authorization'] = 'Bearer $apiKey';
-    request.files.add(await http.MultipartFile.fromPath('file', filePath));
-    if (extraOptions != null) {
-      extraOptions.forEach((key, value) {
-        request.fields[key] = value.toString();
-      });
-    }
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
+    final url = ApiConstants.getOpenAIFiles();
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath),
+      if (extraOptions != null) ...extraOptions,
+    });
+
+    try {
+      final response = await _dio.post(
+        url,
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+      );
+      return response.data;
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI file upload error: ${response.statusCode} ${response.body}',
+        'OpenAI file upload error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }
 
   Future<String> deleteFile(String fileId) async {
-    final url = Uri.parse('${ApiConstants.getOpenAIFiles()}/$fileId');
-    final response = await http.delete(
-      url,
-      headers: {'Authorization': 'Bearer $apiKey'},
-    );
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
+    final url = '${ApiConstants.getOpenAIFiles()}/$fileId';
+
+    try {
+      final response = await _dio.delete(
+        url,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+      );
+      return response.data;
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI file delete error: ${response.statusCode} ${response.body}',
+        'OpenAI file delete error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }
 
   Future<String> getFileInfo(String fileId) async {
-    final url = Uri.parse('${ApiConstants.getOpenAIFiles()}/$fileId');
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $apiKey'},
-    );
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
+    final url = '${ApiConstants.getOpenAIFiles()}/$fileId';
+
+    try {
+      final response = await _dio.get(
+        url,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+      );
+      return response.data;
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI get file info error: ${response.statusCode} ${response.body}',
+        'OpenAI get file info error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }

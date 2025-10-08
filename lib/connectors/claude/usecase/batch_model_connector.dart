@@ -1,11 +1,13 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:gen_connect/core/constants/api.dart';
 
 class ClaudeBatchModelConnector {
+  final Dio dio;
   final String apiKey;
   final String apiVersion;
 
   ClaudeBatchModelConnector({
+    required this.dio,
     required this.apiKey,
     this.apiVersion = '2023-06-01',
   });
@@ -14,20 +16,20 @@ class ClaudeBatchModelConnector {
     List<Map<String, dynamic>> batchRequests,
     String modelName,
   ) async {
-    final url = Uri.parse('https://api.anthropic.com/v1/batch');
+    final url = ApiConstants.claudeBatch;
     final headers = {
       'x-api-key': apiKey,
       'anthropic-version': apiVersion,
       'content-type': 'application/json',
     };
     final body = {'model': modelName, 'requests': batchRequests};
-    final response = await http.post(
+    final response = await dio.post(
       url,
-      headers: headers,
-      body: jsonEncode(body),
+      options: Options(headers: headers),
+      data: body,
     );
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = response.data;
       return List<Map<String, dynamic>>.from(data['responses'] ?? []);
     } else {
       throw Exception('Claude Batch API error: ${response.statusCode}');

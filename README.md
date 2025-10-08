@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/pub/v/gen_connect" alt="Pub Version">
   </a>
   <a href="https://github.com/omjamnekar/gen-connect/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/omjamnekar/gen-connect/build.yml" alt="Build Status">
+    <img src="https://img.shields.io/github/actions/workflow/status/omjamnekar/gen-connect/dart.yml" alt="Build Status">
   </a>
 </p>
 

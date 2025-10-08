@@ -1,8 +1,8 @@
 import 'package:gen_connect/enums/openai.dart';
 import 'package:gen_connect/enums/models.dart';
-import 'package:gen_connect/gen_manager.dart';
 import '../../../core/errors.dart';
-import 'package:dio/dio.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../../core/constants/api.dart';
 
 const Set<OpenAIModel> chatCapableModels = {
@@ -13,51 +13,45 @@ const Set<OpenAIModel> chatCapableModels = {
 };
 
 class OpenAIChatModelConnector {
-  final Dio dio;
+  /// List all conversations
+
   final String apiKey;
 
-  OpenAIChatModelConnector({required this.apiKey})
-    : dio = GenConnectManager.dio;
-
-  /// List all conversations
+  OpenAIChatModelConnector({required this.apiKey});
   Future<String> listConversations() async {
-    try {
-      final response = await dio.get(
-        ApiConstants.listOpenAIConversations(),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-      );
-      return response.data;
-    } catch (e) {
+    final url = Uri.parse(ApiConstants.listOpenAIConversations());
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
       throw APIException(
-        'OpenAI listConversations error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'OpenAI listConversations error: ${response.statusCode} ${response.body}',
       );
     }
   }
 
   /// Create a new conversation
   Future<String> createConversation(Map<String, dynamic> initialData) async {
-    try {
-      final response = await dio.post(
-        ApiConstants.createOpenAIConversation(),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-        data: initialData,
-      );
-      return response.data;
-    } catch (e) {
+    final url = Uri.parse(ApiConstants.createOpenAIConversation());
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode(initialData),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return response.body;
+    } else {
       throw APIException(
-        'OpenAI createConversation error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'OpenAI createConversation error: ${response.statusCode} ${response.body}',
       );
     }
   }
@@ -67,106 +61,102 @@ class OpenAIChatModelConnector {
     String conversationId,
     Map<String, dynamic> updateData,
   ) async {
-    try {
-      final response = await dio.patch(
-        ApiConstants.updateOpenAIConversation(conversationId),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-        data: updateData,
-      );
-      return response.data;
-    } catch (e) {
+    final url = Uri.parse(
+      ApiConstants.updateOpenAIConversation(conversationId),
+    );
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode(updateData),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
       throw APIException(
-        'OpenAI updateConversation error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'OpenAI updateConversation error: ${response.statusCode} ${response.body}',
       );
     }
   }
 
   /// Delete a conversation
   Future<void> deleteConversation(String conversationId) async {
-    try {
-      await dio.delete(
-        ApiConstants.deleteOpenAIConversation(conversationId),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-      );
-    } catch (e) {
+    final url = Uri.parse(
+      ApiConstants.deleteOpenAIConversation(conversationId),
+    );
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+    if (response.statusCode != 204 && response.statusCode != 200) {
       throw APIException(
-        'OpenAI deleteConversation error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'OpenAI deleteConversation error: ${response.statusCode} ${response.body}',
       );
     }
   }
 
   /// Get model info
   Future<String> getModelInfo(String modelName) async {
-    try {
-      final response = await dio.get(
-        ApiConstants.getOpenAIModelInfo(modelName),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-      );
-      return response.data;
-    } catch (e) {
+    final url = Uri.parse(ApiConstants.getOpenAIModelInfo(modelName));
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
       throw APIException(
-        'OpenAI getModelInfo error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'OpenAI getModelInfo error: ${response.statusCode} ${response.body}',
       );
     }
   }
 
   /// Moderate content
   Future<String> moderateContent(String input) async {
-    try {
-      final response = await dio.post(
-        ApiConstants.moderateOpenAIContent(),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-        data: {'input': input},
-      );
-      return response.data;
-    } catch (e) {
+    final url = Uri.parse(ApiConstants.moderateOpenAIContent());
+    final body = {'input': input};
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
       throw APIException(
-        'OpenAI moderateContent error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'OpenAI moderateContent error: ${response.statusCode} ${response.body}',
       );
     }
   }
 
   /// Retrieve a conversation by ID (if supported by OpenAI API)
   Future<String> getConversation(String conversationId) async {
-    try {
-      final response = await dio.get(
-        '${ApiConstants.getOpenAIConversations()}/$conversationId',
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-      );
-      return response.data;
-    } catch (e) {
+    final url = Uri.parse(
+      '${ApiConstants.getOpenAIConversations()}/$conversationId',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
       throw APIException(
-        'OpenAI getConversation error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'OpenAI getConversation error: ${response.statusCode} ${response.body}',
       );
     }
   }
@@ -182,6 +172,7 @@ class OpenAIChatModelConnector {
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
+      final url = Uri.parse(ApiConstants.getOpenAIChatCompletions());
       final body = {
         'model': model.value,
         'messages': [
@@ -192,18 +183,22 @@ class OpenAIChatModelConnector {
         if (maxTokens != null) 'max_tokens': maxTokens,
         if (extraOptions != null) ...extraOptions,
       };
-      final response = await dio.post(
-        ApiConstants.getOpenAIChatCompletions(),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-        data: body,
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $apiKey',
+        },
+        body: jsonEncode(body),
       );
-      final data = response.data;
-      return data['choices']?[0]?['message']?['content'] ?? '';
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['choices']?[0]?['message']?['content'] ?? '';
+      } else {
+        throw APIException(
+          'OpenAI chat error: ${response.statusCode} ${response.body}',
+        );
+      }
     } catch (e) {
       throw APIException(
         'OpenAI chat error',

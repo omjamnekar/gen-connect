@@ -1,31 +1,31 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class GeminiImageUsecase {
-  final Dio _dio = GenConnectManager.dio;
   final String apiKey;
   final String model;
   GeminiImageUsecase({required this.apiKey, required this.model});
 
   Future<String> generateImage(String prompt) async {
-    final response = await _dio.post(
-      ApiConstants.geminiGenerateImage(model),
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
-      ),
-      data: {
+    final url = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta2/models/$model:generateImage',
+    );
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
         'prompt': {'text': prompt},
         'imageSize': '1024x1024',
-      },
+      }),
     );
     if (response.statusCode == 200) {
-      return response.data['imageUrl'] ?? '';
+      final data = jsonDecode(response.body);
+      return data['imageUrl'] ?? '';
     } else {
-      throw Exception('Failed to generate image: \n${response.data}');
+      throw Exception('Failed to generate image: \n${response.body}');
     }
   }
 }

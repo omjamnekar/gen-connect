@@ -1,13 +1,11 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ClaudeStreamingModelConnector {
-  final Dio dio;
   final String apiKey;
   final String apiVersion;
 
   ClaudeStreamingModelConnector({
-    required this.dio,
     required this.apiKey,
     this.apiVersion = '2023-06-01',
   });
@@ -21,7 +19,7 @@ class ClaudeStreamingModelConnector {
     String? systemPrompt,
     List<Map<String, dynamic>>? messages,
   }) async* {
-    final url = ApiConstants.claudeMessages;
+    final url = Uri.parse('https://api.anthropic.com/v1/messages');
     final headers = {
       'x-api-key': apiKey,
       'anthropic-version': apiVersion,
@@ -39,14 +37,16 @@ class ClaudeStreamingModelConnector {
             {'role': 'user', 'content': prompt},
           ],
       if (extraOptions != null) ...extraOptions,
+      'stream': true,
     };
-    final response = await dio.post(
-      url,
-      options: Options(headers: headers),
-      data: body,
-    );
+    final request = http.Request('POST', url)
+      ..headers.addAll(headers)
+      ..body = jsonEncode(body);
+    final response = await request.send();
     if (response.statusCode == 200) {
-      yield response.data.toString();
+      await for (var chunk in response.stream.transform(utf8.decoder)) {
+        yield chunk;
+      }
     } else {
       throw Exception('Claude Streaming API error: ${response.statusCode}');
     }

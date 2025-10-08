@@ -1,4 +1,3 @@
-import 'package:gen_connect/core/constants/api.dart';
 import 'package:http/http.dart' as http;
 
 class PalmFileModelConnector {
@@ -6,7 +5,8 @@ class PalmFileModelConnector {
   PalmFileModelConnector({required this.apiKey});
 
   Future<String> uploadFile(String filePath) async {
-    final uri = Uri.parse(ApiConstants.palmFile);
+    // Replace with the actual Palm API endpoint for file upload
+    final uri = Uri.parse('https://api.palm.com/v1/files');
 
     final request = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $apiKey'

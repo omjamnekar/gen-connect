@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:gen_connect/enums/grok.dart';
-import '../../../core/constants/api.dart';
 
 class GrokTokenModelConnector {
   final String apiKey;
@@ -10,7 +9,8 @@ class GrokTokenModelConnector {
   GrokTokenModelConnector({required this.apiKey, required this.model});
 
   Future<int> countTokens(String text) async {
-    final uri = Uri.parse(ApiConstants.grokTokenCount);
+    // Replace with the actual Grok API endpoint for token counting
+    final uri = Uri.parse('https://api.grok.com/v1/tokenize');
 
     final response = await http.post(
       uri,
@@ -23,6 +23,7 @@ class GrokTokenModelConnector {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      // Assuming the response contains a field 'token_count'
       return data['token_count'] as int;
     } else {
       throw Exception(

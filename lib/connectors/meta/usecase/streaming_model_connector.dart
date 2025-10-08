@@ -1,43 +1,32 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/errors.dart';
-import 'package:gen_connect/gen_manager.dart';
 
 class MetaStreamingModelConnector {
   final String apiKey;
-  final Dio _dio;
-
-  MetaStreamingModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  MetaStreamingModelConnector({required this.apiKey});
 
   Future<Stream<String>> streamResponse(
     String prompt, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    try {
-      final body = {
+    // NOTE: Actual streaming API may differ; this is a placeholder for HTTP chunked response
+    final uri = Uri.parse('https://api.meta.ai/v1/streaming/generate');
+    final request = http.Request('POST', uri)
+      ..headers['Authorization'] = 'Bearer $apiKey'
+      ..headers['Content-Type'] = 'application/json'
+      ..body = jsonEncode({
         'prompt': prompt,
         if (extraOptions != null) ...extraOptions,
-      };
-
-      final response = await _dio.post(
-        ApiConstants.metaStreamingData,
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-          responseType: ResponseType.stream,
-        ),
-      );
-
-      return response.data.stream.transform(utf8.decoder);
-    } catch (e) {
+      });
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      return response.stream.transform(utf8.decoder);
+    } else {
+      final respStr = await response.stream.bytesToString();
       throw APIException(
-        'Meta streaming model error',
-        innerException: e is Exception ? e : Exception(e.toString()),
+        'Meta streaming error: ${response.statusCode}',
+        innerException: Exception(respStr),
       );
     }
   }

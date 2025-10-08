@@ -1,7 +1,7 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
 import 'package:gen_connect/enums/openai.dart';
 import 'package:gen_connect/enums/models.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../../core/constants/api.dart';
 
 const Set<OpenAIModel> embeddingCapableModels = {
@@ -10,10 +10,8 @@ const Set<OpenAIModel> embeddingCapableModels = {
 
 class OpenAIEmbeddingModelConnector {
   final String apiKey;
-  final Dio _dio;
 
-  OpenAIEmbeddingModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  OpenAIEmbeddingModelConnector({required this.apiKey});
 
   String get name => Models.OPENAI.name;
 
@@ -22,34 +20,31 @@ class OpenAIEmbeddingModelConnector {
     String text, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = ApiConstants.getOpenAIEmbeddings();
+    final url = Uri.parse(ApiConstants.getOpenAIEmbeddings());
     final body = {
       'model': model.value,
       'input': text,
       if (extraOptions != null) ...extraOptions,
     };
-
-    try {
-      final response = await _dio.post(
-        url,
-        data: body,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-      );
-      final data = response.data;
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
       final embedding = data['data']?[0]?['embedding'];
       if (embedding is List) {
         return List<double>.from(embedding.map((e) => e.toDouble()));
       } else {
         throw Exception('Embedding not found in response');
       }
-    } on DioError catch (e) {
+    } else {
       throw Exception(
-        'OpenAI Embedding API error: ${e.response?.statusCode} ${e.response?.data}',
+        'OpenAI Embedding API error: ${response.statusCode} ${response.body}',
       );
     }
   }
@@ -59,25 +54,22 @@ class OpenAIEmbeddingModelConnector {
     List<String> texts, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = ApiConstants.getOpenAIEmbeddings();
+    final url = Uri.parse(ApiConstants.getOpenAIEmbeddings());
     final body = {
       'model': model.value,
       'input': texts,
       if (extraOptions != null) ...extraOptions,
     };
-
-    try {
-      final response = await _dio.post(
-        url,
-        data: body,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-      );
-      final data = response.data;
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
       final embeddings = data['data'];
       if (embeddings is List) {
         return embeddings
@@ -89,9 +81,9 @@ class OpenAIEmbeddingModelConnector {
       } else {
         throw Exception('Embeddings not found in response');
       }
-    } on DioError catch (e) {
+    } else {
       throw Exception(
-        'OpenAI Embedding API error: ${e.response?.statusCode} ${e.response?.data}',
+        'OpenAI Embedding API error: ${response.statusCode} ${response.body}',
       );
     }
   }

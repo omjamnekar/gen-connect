@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:gen_connect/core/constants/api.dart';
 import 'package:http/http.dart' as http;
 
 class PalmTextModelConnector {
@@ -11,7 +10,7 @@ class PalmTextModelConnector {
     Map<String, dynamic>? extraOptions,
   }) async {
     // Replace with the actual Palm API endpoint for text prompts
-    final uri = Uri.parse(ApiConstants.palmText);
+    final uri = Uri.parse('https://api.palm.com/v1/text');
 
     final body = {'prompt': prompt, if (extraOptions != null) ...extraOptions};
 

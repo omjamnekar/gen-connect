@@ -1,4 +1,3 @@
-import 'package:gen_connect/core/constants/api.dart';
 import 'package:http/http.dart' as http;
 
 class PalmTierModelConnector {
@@ -6,7 +5,8 @@ class PalmTierModelConnector {
   PalmTierModelConnector({required this.apiKey});
 
   Future<String> getTier() async {
-    final uri = Uri.parse(ApiConstants.palmTier);
+    // Replace with the actual Palm API endpoint for tier info
+    final uri = Uri.parse('https://api.palm.com/v1/tier');
 
     final response = await http.get(
       uri,

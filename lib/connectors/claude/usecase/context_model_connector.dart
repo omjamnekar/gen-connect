@@ -1,13 +1,11 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ClaudeContextModelConnector {
-  final Dio dio;
   final String apiKey;
   final String apiVersion;
 
   ClaudeContextModelConnector({
-    required this.dio,
     required this.apiKey,
     this.apiVersion = '2023-06-01',
   });
@@ -22,7 +20,7 @@ class ClaudeContextModelConnector {
     String? systemPrompt,
     List<Map<String, dynamic>>? messages,
   }) async {
-    final url = ApiConstants.claudeMessages;
+    final url = Uri.parse('https://api.anthropic.com/v1/messages');
     final headers = {
       'x-api-key': apiKey,
       'anthropic-version': apiVersion,
@@ -41,17 +39,15 @@ class ClaudeContextModelConnector {
       if (contextManagement != null) 'context_management': contextManagement,
       if (extraOptions != null) ...extraOptions,
     };
-    final response = await dio.post(
+    final response = await http.post(
       url,
-      options: Options(headers: headers),
-      data: body,
+      headers: headers,
+      body: jsonEncode(body),
     );
     if (response.statusCode == 200) {
-      return response.data;
+      return jsonDecode(response.body);
     } else {
-      throw Exception(
-        'Claude Context Managed API error: ${response.statusCode}',
-      );
+      throw Exception('Claude Context API error: ${response.statusCode}');
     }
   }
 }

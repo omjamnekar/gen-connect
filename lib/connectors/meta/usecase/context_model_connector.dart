@@ -1,43 +1,35 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../../core/errors.dart';
-import 'package:gen_connect/gen_manager.dart';
 
 class MetaContextModelConnector {
   final String apiKey;
-  final Dio _dio;
-
-  MetaContextModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  MetaContextModelConnector({required this.apiKey});
 
   Future<String> getContext(
     String contextId, {
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
-      final body = {
-        'context_id': contextId,
-        if (extraOptions != null) ...extraOptions,
-      };
-
-      final response = await _dio.post(
-        ApiConstants.metaContextRetrieve,
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
+      final uri = Uri.parse('https://api.meta.ai/v1/context/get');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'context_id': contextId,
+          if (extraOptions != null) ...extraOptions,
+        }),
       );
-
       if (response.statusCode == 200) {
-        final data = response.data;
+        final data = jsonDecode(response.body);
         return data['context'] ?? '';
       } else {
         throw APIException(
           'Meta context error: ${response.statusCode}',
-          innerException: Exception(response.data.toString()),
+          innerException: Exception(response.body),
         );
       }
     } catch (e) {

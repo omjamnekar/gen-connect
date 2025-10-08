@@ -1,10 +1,6 @@
 import 'package:gen_connect/enums/models.dart';
 
-/// Abstract base class for AI model connectors.
+/// Abstract interface for any AI model connector.
 abstract class AIModelConnector {
-  /// Constructor for AIModelConnector.
-  AIModelConnector();
-
-  /// Name of the AI model connector.
   Models get name;
 }

@@ -34,7 +34,7 @@ class GrokTextModelConnector {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = ApiConstants.grokTextGenerate;
+    final url = ApiConstants.getXaiChatCompletions();
     final body = {
       'model': model.value,
       'prompt': prompt,

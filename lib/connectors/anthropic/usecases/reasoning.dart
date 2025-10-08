@@ -10,14 +10,8 @@ class AnthropicReasoningUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/reasoning');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'model': model,
-        'prompt': prompt,
-      }),
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
+      body: jsonEncode({'model': model, 'prompt': prompt}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

@@ -10,15 +10,8 @@ class AnthropicImageUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/generate-image');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'model': model,
-        'prompt': prompt,
-        'size': '1024x1024',
-      }),
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
+      body: jsonEncode({'model': model, 'prompt': prompt, 'size': '1024x1024'}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

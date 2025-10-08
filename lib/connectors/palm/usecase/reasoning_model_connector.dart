@@ -1,8 +1,5 @@
 import 'dart:convert';
-
-import 'package:gen_connect/core/constants/api.dart';
 import 'package:http/http.dart' as http;
-// Import the file where ApiConstants is defined
 
 class PalmReasoningModelConnector {
   final String apiKey;
@@ -13,7 +10,7 @@ class PalmReasoningModelConnector {
     Map<String, dynamic>? extraOptions,
   }) async {
     // Replace with the actual Palm API endpoint for reasoning
-    final uri = Uri.parse(ApiConstants.palmReasoning);
+    final uri = Uri.parse('https://api.palm.com/v1/reasoning');
 
     final body = {'prompt': prompt, if (extraOptions != null) ...extraOptions};
 

@@ -1,15 +1,13 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
 import 'package:gen_connect/enums/meta.dart';
 import 'package:gen_connect/enums/models.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/errors.dart';
-import 'package:gen_connect/gen_manager.dart';
 
 class MetaTextModelConnector {
   final String apiKey;
-  final Dio _dio;
 
-  MetaTextModelConnector({required this.apiKey}) : _dio = GenConnectManager.dio;
+  MetaTextModelConnector({required this.apiKey});
 
   String get name => Models.META.name;
 
@@ -22,33 +20,30 @@ class MetaTextModelConnector {
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
-      final body = {
-        'model': model.value,
-        'prompt': prompt,
-        if (temperature != null) 'temperature': temperature,
-        if (maxTokens != null) 'max_tokens': maxTokens,
-        if (systemPrompt != null) 'system_prompt': systemPrompt,
-        if (extraOptions != null) ...extraOptions,
-      };
-
-      final response = await _dio.post(
-        ApiConstants.metaTextGenerate,
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
+      // Example HTTPS call using Dart's http package
+      final uri = Uri.parse('https://api.meta.ai/v1/text/generate');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': model.value,
+          'prompt': prompt,
+          if (temperature != null) 'temperature': temperature,
+          if (maxTokens != null) 'max_tokens': maxTokens,
+          if (systemPrompt != null) 'system_prompt': systemPrompt,
+          if (extraOptions != null) ...extraOptions,
+        }),
       );
-
       if (response.statusCode == 200) {
-        final data = response.data;
+        final data = jsonDecode(response.body);
         return data['result'] ?? '';
       } else {
         throw APIException(
-          'Meta text generation error: ${response.statusCode}',
-          innerException: Exception(response.data.toString()),
+          'Meta text model error: ${response.statusCode}',
+          innerException: Exception(response.body),
         );
       }
     } catch (e) {

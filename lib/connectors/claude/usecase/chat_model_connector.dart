@@ -1,14 +1,13 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
 import 'package:gen_connect/enums/claude.dart';
+import 'package:http/http.dart' as http;
 
 class CloudeChatModelConnector {
-  final Dio dio;
   final String apiKey;
+
   final String apiVersion;
 
   CloudeChatModelConnector({
-    required this.dio,
     required this.apiKey,
 
     this.apiVersion = '2023-06-01',
@@ -25,7 +24,7 @@ class CloudeChatModelConnector {
     List<Map<String, dynamic>>? messages,
     bool stream = false,
   }) async {
-    final url = ApiConstants.claudeMessages;
+    final url = Uri.parse('https://api.anthropic.com/v1/messages');
     final headers = {
       'x-api-key': apiKey,
       'anthropic-version': apiVersion,
@@ -41,16 +40,29 @@ class CloudeChatModelConnector {
           [
             {'role': 'user', 'content': prompt},
           ],
+      if (extraOptions != null) ...extraOptions,
+      if (stream) 'stream': true,
     };
-    final response = await dio.post(
+    final response = await http.post(
       url,
-      options: Options(headers: headers),
-      data: body,
+      headers: headers,
+      body: jsonEncode(body),
     );
     if (response.statusCode == 200) {
-      return response.data['response'];
+      final data = jsonDecode(response.body);
+      if (data['content'] is List && data['content'].isNotEmpty) {
+        // Return the first text block
+        final textBlock = data['content'].firstWhere(
+          (block) => block['type'] == 'text',
+          orElse: () => null,
+        );
+        return textBlock != null ? textBlock['text'] ?? '' : '';
+      }
+      return '';
     } else {
-      throw Exception('Claude Chat API error: ${response.statusCode}');
+      throw Exception(
+        'Claude API error: \\${response.statusCode} \\${response.body}',
+      );
     }
   }
 }

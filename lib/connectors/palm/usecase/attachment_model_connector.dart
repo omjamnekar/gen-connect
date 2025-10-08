@@ -1,31 +1,25 @@
-import 'package:gen_connect/gen_manager.dart';
-import 'package:gen_connect/core/constants/api.dart';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 
 class PalmAttachmentModelConnector {
   final String apiKey;
-  final Dio _dio;
-
-  PalmAttachmentModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  PalmAttachmentModelConnector({required this.apiKey});
 
   Future<String> attachFile(String filePath) async {
-    final uri = ApiConstants.palmAttachments;
+    // Replace with the actual Palm API endpoint for file attachment
+    final uri = Uri.parse('https://api.palm.com/v1/attachments');
 
-    final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(filePath),
-    });
+    final request = http.MultipartRequest('POST', uri)
+      ..headers['Authorization'] = 'Bearer $apiKey'
+      ..files.add(await http.MultipartFile.fromPath('file', filePath));
 
-    try {
-      final response = await _dio.post(
-        uri,
-        data: formData,
-        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
-      );
-      return response.data;
-    } on DioException catch (e) {
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
       throw Exception(
-        'Failed to attach file: ${e.response?.statusCode} ${e.response?.data}',
+        'Failed to attach file: \\${response.statusCode} \\${response.body}',
       );
     }
   }

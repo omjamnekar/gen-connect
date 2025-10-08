@@ -1,41 +1,43 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../core/errors.dart';
 
 class MetaToolModelConnector {
   final String apiKey;
-  final Dio _dio;
-
-  MetaToolModelConnector({required this.apiKey}) : _dio = GenConnectManager.dio;
+  MetaToolModelConnector({required this.apiKey});
 
   Future<String> runTool(
     String toolName,
     Map<String, dynamic> params, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    final uri = ApiConstants.metaToolRun;
-    final body = {
-      'tool': toolName,
-      'params': params,
-      if (extraOptions != null) ...extraOptions,
-    };
-
     try {
-      final response = await _dio.post(
+      final uri = Uri.parse('https://api.meta.ai/v1/tool/run');
+      final response = await http.post(
         uri,
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'tool': toolName,
+          'params': params,
+          if (extraOptions != null) ...extraOptions,
+        }),
       );
-      final data = response.data;
-      return data['result'] ?? '';
-    } on DioException catch (e) {
-      throw Exception(
-        'Meta tool run error: ${e.response?.statusCode} ${e.response?.data}',
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['result'] ?? '';
+      } else {
+        throw APIException(
+          'Meta tool run error: ${response.statusCode}',
+          innerException: Exception(response.body),
+        );
+      }
+    } catch (e) {
+      throw APIException(
+        'Meta tool model error',
+        innerException: e is Exception ? e : Exception(e.toString()),
       );
     }
   }

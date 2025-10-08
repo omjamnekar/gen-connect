@@ -29,7 +29,7 @@ class GrokImageModelConnector {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = ApiConstants.grokImageGenerate;
+    final url = ApiConstants.getXaiImageGenerations();
     // import 'package:http/http.dart' as http; (add if not present)
     // The xAI API expects a POST with JSON body for image generation prompt
     final body = {

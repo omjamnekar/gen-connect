@@ -1,17 +1,16 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
 import 'package:gen_connect/enums/openai.dart';
 import 'package:gen_connect/enums/models.dart';
+import '../../../core/errors.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../../core/constants/api.dart';
 
 const Set<OpenAIModel> imageCapableModels = {OpenAIModel.gptImage1};
 
 class OpenAIImageModelConnector {
   final String apiKey;
-  final Dio _dio;
 
-  OpenAIImageModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  OpenAIImageModelConnector({required this.apiKey});
 
   String get name => Models.OPENAI.name;
 
@@ -23,7 +22,7 @@ class OpenAIImageModelConnector {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = ApiConstants.getOpenAIImageGenerations();
+    final url = Uri.parse(ApiConstants.getOpenAIImageGenerations());
     final body = {
       'model': model.value,
       'prompt': prompt,
@@ -32,22 +31,19 @@ class OpenAIImageModelConnector {
       if (systemPrompt != null) 'system_prompt': systemPrompt,
       if (extraOptions != null) ...extraOptions,
     };
-
-    try {
-      final response = await _dio.post(
-        url,
-        data: body,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
-      );
-      return response.data;
-    } on DioError catch (e) {
-      throw Exception(
-        'OpenAI Image API error: ${e.response?.statusCode} ${e.response?.data}',
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw AIConnectorError(
+        'OpenAI Image API error: ${response.statusCode} ${response.body}',
       );
     }
   }
@@ -58,24 +54,28 @@ class OpenAIImageModelConnector {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = ApiConstants.getOpenAIImageGenerations();
-    final formData = FormData.fromMap({
-      'model': model.value,
-      'image': await MultipartFile.fromFile(imagePath),
-      if (prompt != null) 'prompt': prompt,
-      if (extraOptions != null) ...extraOptions,
-    });
+    final url = Uri.parse(ApiConstants.getOpenAIImageGenerations());
+    final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $apiKey'
+      ..fields['model'] = model.value;
+    if (prompt != null) {
+      request.fields['prompt'] = prompt;
+    }
+    if (extraOptions != null) {
+      extraOptions.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+    }
+    request.files.add(await http.MultipartFile.fromPath('image', imagePath));
 
-    try {
-      final response = await _dio.post(
-        url,
-        data: formData,
-        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
-      );
-      return response.data;
-    } on DioError catch (e) {
-      throw Exception(
-        'OpenAI Image-to-Text API error: ${e.response?.statusCode} ${e.response?.data}',
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw AIConnectorError(
+        'OpenAI Image-to-Text API error: ${response.statusCode} ${response.body}',
       );
     }
   }

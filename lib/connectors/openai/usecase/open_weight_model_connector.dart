@@ -1,9 +1,9 @@
+import 'package:dio/dio.dart';
+import 'package:gen_connect/gen_manager.dart';
 import 'package:gen_connect/core/constants/api.dart';
 import 'package:gen_connect/enums/openai.dart';
 
 import 'package:gen_connect/enums/models.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 final List<OpenAIModel> openWeightCapableModels = [
   OpenAIModel.gptOss120b,
@@ -13,8 +13,11 @@ final List<OpenAIModel> openWeightCapableModels = [
 
 class OpenAIOpenWeightModelConnector {
   final String apiKey;
+  final Dio _dio;
 
-  OpenAIOpenWeightModelConnector({required this.apiKey});
+  OpenAIOpenWeightModelConnector({required this.apiKey})
+    : _dio = GenConnectManager.dio;
+
   String get name => Models.OPENAI.name;
 
   Future<String> sendChatPrompt(
@@ -25,7 +28,7 @@ class OpenAIOpenWeightModelConnector {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = Uri.parse('${ApiConstants.openaiBaseUrl}/chat');
+    final url = '${ApiConstants.openaiBaseUrl}/chat';
     final body = {
       'model': model.value,
       'messages': [
@@ -36,20 +39,23 @@ class OpenAIOpenWeightModelConnector {
       if (maxTokens != null) 'max_tokens': maxTokens,
       if (extraOptions != null) ...extraOptions,
     };
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
-      body: jsonEncode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+
+    try {
+      final response = await _dio.post(
+        url,
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $apiKey',
+          },
+        ),
+      );
+      final data = response.data;
       return data['choices']?[0]?['message']?['content'] ?? '';
-    } else {
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI OpenWeight API error: ${response.statusCode} ${response.body}',
+        'OpenAI OpenWeight API error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }
@@ -61,7 +67,7 @@ class OpenAIOpenWeightModelConnector {
     int? maxTokens,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = Uri.parse('${ApiConstants.openaiBaseUrl}/completion');
+    final url = '${ApiConstants.openaiBaseUrl}/completion';
     final body = {
       'model': model.value,
       'prompt': prompt,
@@ -69,20 +75,23 @@ class OpenAIOpenWeightModelConnector {
       if (maxTokens != null) 'max_tokens': maxTokens,
       if (extraOptions != null) ...extraOptions,
     };
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
-      body: jsonEncode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+
+    try {
+      final response = await _dio.post(
+        url,
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $apiKey',
+          },
+        ),
+      );
+      final data = response.data;
       return data['choices']?[0]?['text'] ?? '';
-    } else {
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI OpenWeight API error: ${response.statusCode} ${response.body}',
+        'OpenAI OpenWeight API error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }

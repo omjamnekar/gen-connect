@@ -8,6 +8,7 @@ import 'package:gen_connect/connectors/claude/usecase/streaming_model_connector.
 import 'package:gen_connect/connectors/claude/usecase/token_count_model_connector.dart';
 import 'package:gen_connect/connectors/claude/usecase/tool_model_connector.dart';
 import 'package:gen_connect/enums/models.dart';
+import 'package:gen_connect/gen_manager.dart';
 import 'package:gen_connect/repo/ai_model_connector.dart';
 
 import 'package:gen_connect/connectors/claude/usecase/context_model_connector.dart';
@@ -26,19 +27,38 @@ class ClaudeConnector extends AIModelConnector {
   late ClaudeServiceTierModelConnector _claudeServiceTierConnector;
 
   ClaudeConnector({required this.apiKey, required this.apiVersion}) {
+    final dio = GenConnectManager.dio;
     _chatModelConnector = CloudeChatModelConnector(
+      dio: dio,
       apiKey: apiKey,
       apiVersion: apiVersion,
     );
-    _claudeTokenConnetor = ClaudeTokenCountModelConnector(apiKey: apiKey);
-    _claudeBatchModelConnector = ClaudeBatchModelConnector(apiKey: apiKey);
-    _claudeStreamingModelConnector = ClaudeStreamingModelConnector(
+    _claudeTokenConnetor = ClaudeTokenCountModelConnector(
+      dio: dio,
       apiKey: apiKey,
     );
-    _claudeToolModelConnector = ClaudeToolModelConnector(apiKey: apiKey);
-    _claudeattachmentconnector = ClaudeAttachmentModelConnector(apiKey: apiKey);
-    _claudeContextConnector = ClaudeContextModelConnector(apiKey: apiKey);
+    _claudeBatchModelConnector = ClaudeBatchModelConnector(
+      dio: dio,
+      apiKey: apiKey,
+    );
+    _claudeStreamingModelConnector = ClaudeStreamingModelConnector(
+      dio: dio,
+      apiKey: apiKey,
+    );
+    _claudeToolModelConnector = ClaudeToolModelConnector(
+      dio: dio,
+      apiKey: apiKey,
+    );
+    _claudeattachmentconnector = ClaudeAttachmentModelConnector(
+      dio: dio,
+      apiKey: apiKey,
+    );
+    _claudeContextConnector = ClaudeContextModelConnector(
+      dio: dio,
+      apiKey: apiKey,
+    );
     _claudeServiceTierConnector = ClaudeServiceTierModelConnector(
+      dio: dio,
       apiKey: apiKey,
     );
   }

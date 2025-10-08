@@ -1,30 +1,30 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:gen_connect/gen_manager.dart';
+import 'package:gen_connect/core/constants/api.dart';
 
 class GeminiBatchUsecase {
+  final Dio _dio = GenConnectManager.dio;
   final String apiKey;
   final String model;
   GeminiBatchUsecase({required this.apiKey, required this.model});
 
   Future<List<String>> batchGenerate(List<String> prompts) async {
-    final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta2/models/$model:batchGenerate',
-    );
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'prompts': prompts, 'maxOutputTokens': 256}),
+    final response = await _dio.post(
+      ApiConstants.geminiBatchGenerate(model),
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+      ),
+      data: {'prompts': prompts, 'maxOutputTokens': 256},
     );
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
       return List<String>.from(
-        data['candidates']?.map((c) => c['output']) ?? [],
+        response.data['candidates']?.map((c) => c['output']) ?? [],
       );
     } else {
-      throw Exception('Failed to batch generate: \n${response.body}');
+      throw Exception('Failed to batch generate: \n${response.data}');
     }
   }
 }

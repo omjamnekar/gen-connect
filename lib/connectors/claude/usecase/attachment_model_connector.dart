@@ -1,11 +1,13 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:gen_connect/core/constants/api.dart';
 
 class ClaudeAttachmentModelConnector {
+  final Dio dio;
   final String apiKey;
   final String apiVersion;
 
   ClaudeAttachmentModelConnector({
+    required this.dio,
     required this.apiKey,
     this.apiVersion = '2023-06-01',
   });
@@ -20,7 +22,7 @@ class ClaudeAttachmentModelConnector {
     String? systemPrompt,
     List<Map<String, dynamic>>? messages,
   }) async {
-    final url = Uri.parse('https://api.anthropic.com/v1/messages');
+    final url = ApiConstants.claudeMessages;
     final headers = {
       'x-api-key': apiKey,
       'anthropic-version': apiVersion,
@@ -37,15 +39,14 @@ class ClaudeAttachmentModelConnector {
             {'role': 'user', 'content': prompt},
           ],
       'attachments': attachments,
-      if (extraOptions != null) ...extraOptions,
     };
-    final response = await http.post(
+    final response = await dio.post(
       url,
-      headers: headers,
-      body: jsonEncode(body),
+      options: Options(headers: headers),
+      data: body,
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return response.data;
     } else {
       throw Exception('Claude Attachment API error: ${response.statusCode}');
     }

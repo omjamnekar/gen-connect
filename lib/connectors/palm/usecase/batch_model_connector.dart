@@ -1,28 +1,34 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:gen_connect/core/constants/api.dart';
+import 'package:gen_connect/gen_manager.dart';
+import 'package:dio/dio.dart';
 
 class PalmBatchModelConnector {
   final String apiKey;
-  PalmBatchModelConnector({required this.apiKey});
+  final Dio _dio;
+
+  PalmBatchModelConnector({required this.apiKey})
+    : _dio = GenConnectManager.dio;
 
   Future<String> batchRequest(List<String> prompts) async {
-    // Replace with the actual Palm API endpoint for batch requests
-    final uri = Uri.parse('https://api.palm.com/v1/batch');
+    final uri = ApiConstants.palmBatch;
 
-    final response = await http.post(
-      uri,
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'prompts': prompts}),
-    );
+    final body = {'prompts': prompts};
 
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
+    try {
+      final response = await _dio.post(
+        uri,
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      return response.data;
+    } on DioError catch (e) {
       throw Exception(
-        'Failed to send batch request: \\${response.statusCode} \\${response.body}',
+        'Failed to send batch request: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }

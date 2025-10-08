@@ -1,11 +1,13 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:gen_connect/core/constants/api.dart';
 
 class ClaudeToolModelConnector {
+  final Dio dio;
   final String apiKey;
   final String apiVersion;
 
   ClaudeToolModelConnector({
+    required this.dio,
     required this.apiKey,
     this.apiVersion = '2023-06-01',
   });
@@ -21,7 +23,7 @@ class ClaudeToolModelConnector {
     List<Map<String, dynamic>>? messages,
     String? toolChoice,
   }) async {
-    final url = Uri.parse('https://api.anthropic.com/v1/messages');
+    final url = ApiConstants.claudeMessages;
     final headers = {
       'x-api-key': apiKey,
       'anthropic-version': apiVersion,
@@ -39,15 +41,14 @@ class ClaudeToolModelConnector {
           ],
       'tools': tools,
       if (toolChoice != null) 'tool_choice': toolChoice,
-      if (extraOptions != null) ...extraOptions,
     };
-    final response = await http.post(
+    final response = await dio.post(
       url,
-      headers: headers,
-      body: jsonEncode(body),
+      options: Options(headers: headers),
+      data: body,
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return response.data;
     } else {
       throw Exception('Claude Tool API error: ${response.statusCode}');
     }

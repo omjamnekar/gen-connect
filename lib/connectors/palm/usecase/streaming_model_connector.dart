@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:gen_connect/core/constants/api.dart';
 import 'package:http/http.dart' as http;
 
 class PalmStreamingModelConnector {
@@ -10,7 +11,7 @@ class PalmStreamingModelConnector {
     Map<String, dynamic>? extraOptions,
   }) async* {
     // Replace with the actual Palm API endpoint for streaming
-    final uri = Uri.parse('https://api.palm.com/v1/stream');
+    final uri = Uri.parse(ApiConstants.palmStreaming);
 
     final request = http.Request('POST', uri)
       ..headers['Authorization'] = 'Bearer $apiKey'

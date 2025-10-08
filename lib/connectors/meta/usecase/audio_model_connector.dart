@@ -1,34 +1,38 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:gen_connect/core/constants/api.dart';
+import 'package:gen_connect/gen_manager.dart';
 import '../../../core/errors.dart';
 
 class MetaAudioModelConnector {
+  final Dio _dio;
   final String apiKey;
-  MetaAudioModelConnector({required this.apiKey});
+
+  MetaAudioModelConnector({required this.apiKey})
+    : _dio = GenConnectManager.dio;
 
   Future<String> transcribeAudio(
     String filePath, {
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
-      final uri = Uri.parse('https://api.meta.ai/v1/audio/transcribe');
-      final request = http.MultipartRequest('POST', uri)
-        ..headers['Authorization'] = 'Bearer $apiKey'
-        ..files.add(await http.MultipartFile.fromPath('file', filePath));
-      if (extraOptions != null) {
-        request.fields.addAll(
-          extraOptions.map((k, v) => MapEntry(k, v.toString())),
-        );
-      }
-      final response = await request.send();
-      final respStr = await response.stream.bytesToString();
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(filePath),
+        if (extraOptions != null) ...extraOptions,
+      });
+
+      final response = await _dio.post(
+        ApiConstants.metaAudioTranscribe,
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+      );
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(respStr);
+        final data = response.data;
         return data['transcript'] ?? '';
       } else {
         throw APIException(
           'Meta audio transcription error: ${response.statusCode}',
-          innerException: Exception(respStr),
+          innerException: Exception(response.data.toString()),
         );
       }
     } catch (e) {

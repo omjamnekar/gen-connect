@@ -1,5 +1,7 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:gen_connect/core/constants/api.dart';
+import 'package:http/http.dart'
+    as http; // Import the file where ApiConstants is defined
 
 class PalmImageModelConnector {
   final String apiKey;
@@ -10,7 +12,7 @@ class PalmImageModelConnector {
     Map<String, dynamic>? extraOptions,
   }) async {
     // Replace with the actual Palm API endpoint for image prompts
-    final uri = Uri.parse('https://api.palm.com/v1/image');
+    final uri = Uri.parse(ApiConstants.palmImage);
 
     // This assumes the API expects a base64 or file upload; adjust as needed
     final body = {

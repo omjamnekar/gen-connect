@@ -1,5 +1,5 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:gen_connect/gen_manager.dart';
 import 'package:gen_connect/enums/openai.dart';
 import 'package:gen_connect/enums/models.dart';
 import 'package:gen_connect/core/constants/api.dart';
@@ -13,8 +13,10 @@ final Set<OpenAIModel> reasoningCapableModels = {
 
 class OpenAIReasoningModelConnector {
   final String apiKey;
+  final Dio _dio;
 
-  OpenAIReasoningModelConnector({required this.apiKey});
+  OpenAIReasoningModelConnector({required this.apiKey})
+    : _dio = GenConnectManager.dio;
 
   // @override
   String get name => Models.OPENAI.name;
@@ -28,7 +30,7 @@ class OpenAIReasoningModelConnector {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = Uri.parse(ApiConstants.getOpenAIChatCompletions());
+    final url = ApiConstants.getOpenAIChatCompletions();
     final body = {
       'model': model.value,
       'messages': [
@@ -39,20 +41,23 @@ class OpenAIReasoningModelConnector {
       if (maxTokens != null) 'max_tokens': maxTokens,
       if (extraOptions != null) ...extraOptions,
     };
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $apiKey',
-      },
-      body: jsonEncode(body),
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+
+    try {
+      final response = await _dio.post(
+        url,
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $apiKey',
+          },
+        ),
+      );
+      final data = response.data;
       return data['choices']?[0]?['message']?['content'] ?? '';
-    } else {
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI Reasoning API error: ${response.statusCode} ${response.body}',
+        'OpenAI Reasoning API error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }
@@ -63,25 +68,28 @@ class OpenAIReasoningModelConnector {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final url = Uri.parse(ApiConstants.getOpenAIImageGenerations());
+    final url = ApiConstants.getOpenAIImageGenerations();
     final body = {
       'model': model.value,
       'prompt': prompt ?? '',
       if (extraOptions != null) ...extraOptions,
     };
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
+
+    try {
+      final response = await _dio.post(
+        url,
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $apiKey',
+          },
+        ),
+      );
+      return response.data;
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI Reasoning image API error: ${response.statusCode} ${response.body}',
+        'OpenAI Reasoning image API error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }
@@ -91,23 +99,22 @@ class OpenAIReasoningModelConnector {
     String? prompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    // OpenAI does not have a direct document endpoint; treat as file upload
-    final url = Uri.parse(ApiConstants.getOpenAIFiles());
-    final request = http.MultipartRequest('POST', url)
-      ..headers['Authorization'] = 'Bearer $apiKey';
-    request.files.add(await http.MultipartFile.fromPath('file', documentPath));
-    if (extraOptions != null) {
-      extraOptions.forEach((key, value) {
-        request.fields[key] = value.toString();
-      });
-    }
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
+    final url = ApiConstants.getOpenAIFiles();
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(documentPath),
+      if (extraOptions != null) ...extraOptions,
+    });
+
+    try {
+      final response = await _dio.post(
+        url,
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+      );
+      return response.data;
+    } on DioError catch (e) {
       throw Exception(
-        'OpenAI Reasoning file API error: ${response.statusCode} ${response.body}',
+        'OpenAI Reasoning file API error: ${e.response?.statusCode} ${e.response?.data}',
       );
     }
   }

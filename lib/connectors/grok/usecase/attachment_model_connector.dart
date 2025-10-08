@@ -1,30 +1,38 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:gen_connect/enums/grok.dart';
+import '../../../core/constants/api.dart';
+import 'package:gen_connect/gen_manager.dart';
 
 class GrokAttachmentModelConnector {
   final String apiKey;
   final GrokModel model;
+  final Dio _dio;
 
-  GrokAttachmentModelConnector({required this.apiKey, required this.model});
+  GrokAttachmentModelConnector({required this.apiKey, required this.model})
+    : _dio = GenConnectManager.dio;
 
   Future<String> attachFile(String filePath) async {
-    // Replace with the actual Grok API endpoint for file attachment
-    final uri = Uri.parse('https://api.grok.com/v1/attachments');
+    try {
+      final formData = FormData.fromMap({
+        'model': model.name,
+        'file': await MultipartFile.fromFile(filePath),
+      });
 
-    final request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $apiKey'
-      ..fields['model'] = model.name
-      ..files.add(await http.MultipartFile.fromPath('file', filePath));
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      throw Exception(
-        'Failed to attach file: \\${response.statusCode} \\${response.body}',
+      final response = await _dio.post(
+        ApiConstants.grokAttachmentUpload,
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
       );
+
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception(
+          'Failed to attach file: ${response.statusCode} ${response.data}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error during file attachment: $e');
     }
   }
 }

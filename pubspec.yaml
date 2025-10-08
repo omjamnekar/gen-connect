@@ -24,7 +24,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - gen_connect.png
+    - art/gen_connect.png
+    - art/arch.png
   #
   # For details regarding assets in packages, see
   # https://flutter.dev/to/asset-from-package

@@ -1,6 +1,6 @@
 name: gen_connect
 description: "A modular Dart/Flutter package for integrating AI models and providers. Supports text, image, audio, and more."
-version: 0.0.8
+version: 0.0.9
 repository: https://github.com/omjamnekar/gen-connect
 
 environment:

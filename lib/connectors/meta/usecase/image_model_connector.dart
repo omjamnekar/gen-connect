@@ -1,43 +1,37 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+
 import 'package:gen_connect/core/errors.dart';
-import 'package:gen_connect/gen_manager.dart';
+import 'package:http/http.dart' as http;
 
 class MetaImageModelConnector {
   final String apiKey;
-  final Dio _dio;
 
-  MetaImageModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  MetaImageModelConnector({required this.apiKey});
 
   Future<String> generateImage(
     String prompt, {
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
-      final body = {
-        'prompt': prompt,
-        if (extraOptions != null) ...extraOptions,
-      };
-
-      final response = await _dio.post(
-        ApiConstants.metaImageGenerate,
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
+      final uri = Uri.parse('https://api.meta.ai/v1/image/generate');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'prompt': prompt,
+          if (extraOptions != null) ...extraOptions,
+        }),
       );
-
       if (response.statusCode == 200) {
-        final data = response.data;
+        final data = jsonDecode(response.body);
         return data['image_url'] ?? '';
       } else {
         throw APIException(
           'Meta image generation error: ${response.statusCode}',
-          innerException: Exception(response.data.toString()),
+          innerException: Exception(response.body),
         );
       }
     } catch (e) {

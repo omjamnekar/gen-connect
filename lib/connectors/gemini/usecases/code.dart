@@ -1,31 +1,31 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class GeminiCodeUsecase {
-  final Dio _dio = GenConnectManager.dio;
   final String apiKey;
   final String model;
   GeminiCodeUsecase({required this.apiKey, required this.model});
 
   Future<String> generateCode(String prompt) async {
-    final response = await _dio.post(
-      ApiConstants.geminiGenerateCode(model),
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
-      ),
-      data: {
+    final url = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta2/models/$model:generateCode',
+    );
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
         'prompt': {'text': prompt},
         'maxOutputTokens': 256,
-      },
+      }),
     );
     if (response.statusCode == 200) {
-      return response.data['candidates']?[0]?['output'] ?? '';
+      final data = jsonDecode(response.body);
+      return data['candidates']?[0]?['output'] ?? '';
     } else {
-      throw Exception('Failed to generate code: \n${response.data}');
+      throw Exception('Failed to generate code: \n${response.body}');
     }
   }
 }

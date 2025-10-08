@@ -1,37 +1,41 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
-import 'package:gen_connect/core/constants/api.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../core/errors.dart';
 
 class MetaTokenModelConnector {
   final String apiKey;
-  final Dio _dio;
-
-  MetaTokenModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  MetaTokenModelConnector({required this.apiKey});
 
   Future<int> countTokens(
     String text, {
     Map<String, dynamic>? extraOptions,
   }) async {
-    final uri = ApiConstants.metaTokenCount;
-    final body = {'text': text, if (extraOptions != null) ...extraOptions};
-
     try {
-      final response = await _dio.post(
+      final uri = Uri.parse('https://api.meta.ai/v1/token/count');
+      final response = await http.post(
         uri,
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'text': text,
+          if (extraOptions != null) ...extraOptions,
+        }),
       );
-      final data = response.data;
-      return data['count'] ?? 0;
-    } on DioException catch (e) {
-      throw Exception(
-        'Meta token count error: ${e.response?.statusCode} ${e.response?.data}',
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['count'] ?? 0;
+      } else {
+        throw APIException(
+          'Meta token count error: ${response.statusCode}',
+          innerException: Exception(response.body),
+        );
+      }
+    } catch (e) {
+      throw APIException(
+        'Meta token model error',
+        innerException: e is Exception ? e : Exception(e.toString()),
       );
     }
   }

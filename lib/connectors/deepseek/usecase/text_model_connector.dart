@@ -1,7 +1,6 @@
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:gen_connect/enums/deepseek.dart';
-import 'package:gen_connect/core/constants/api.dart';
 
 final Set<DeepSeekModel> deepseekTextModels = {
   DeepSeekModel.deepseekChat,
@@ -9,7 +8,6 @@ final Set<DeepSeekModel> deepseekTextModels = {
 };
 
 class DeepSeekTextModelConnector {
-  final Dio _dio = GenConnectManager.dio;
   final String apiKey;
   final DeepSeekModel model;
 
@@ -28,27 +26,29 @@ class DeepSeekTextModelConnector {
     String? systemPrompt,
     Map<String, dynamic>? extraOptions,
   }) async {
-    final response = await _dio.post(
-      ApiConstants.deepSeekText,
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
-      ),
-      data: {
-        'model': model.value,
-        'prompt': prompt,
-        if (temperature != null) 'temperature': temperature,
-        if (maxTokens != null) 'max_tokens': maxTokens,
-        if (systemPrompt != null) 'system_prompt': systemPrompt,
-        if (extraOptions != null) ...extraOptions,
-      },
+    final url = Uri.parse('https://api.deepseek.com/v1/text');
+    final headers = {
+      'Authorization': 'Bearer $apiKey',
+      'Content-Type': 'application/json',
+    };
+    final body = {
+      'model': model.value,
+      'prompt': prompt,
+      if (temperature != null) 'temperature': temperature,
+      if (maxTokens != null) 'max_tokens': maxTokens,
+      if (systemPrompt != null) 'system_prompt': systemPrompt,
+      if (extraOptions != null) ...extraOptions,
+    };
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
     );
     if (response.statusCode == 200) {
-      return response.data['result'] ?? '';
+      final data = jsonDecode(response.body);
+      return data['result'] ?? '';
     } else {
-      throw Exception('Failed to send prompt: \n${response.data}');
+      throw Exception('DeepSeek text API error: ${response.statusCode}');
     }
   }
 }

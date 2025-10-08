@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:gen_connect/enums/grok.dart';
-import '../../../core/constants/api.dart';
 
 class GrokToolModelConnector {
   final String apiKey;
@@ -10,7 +9,8 @@ class GrokToolModelConnector {
   GrokToolModelConnector({required this.apiKey, required this.model});
 
   Future<String> useTool(String toolName, String input) async {
-    final uri = Uri.parse(ApiConstants.grokToolRun);
+    // Replace with the actual Grok API endpoint for tool usage
+    final uri = Uri.parse('https://api.grok.com/v1/tool');
 
     final response = await http.post(
       uri,

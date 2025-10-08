@@ -1,33 +1,30 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:gen_connect/gen_manager.dart';
+import 'package:http/http.dart' as http;
 import 'package:gen_connect/enums/grok.dart';
-import '../../../core/constants/api.dart';
 
 class GrokStreamingModelConnector {
-  final Dio _dio = GenConnectManager.dio;
   final String apiKey;
   final GrokModel model;
 
   GrokStreamingModelConnector({required this.apiKey, required this.model});
 
   Stream<String> streamPrompt(String prompt) async* {
-    final response = await _dio.request(
-      ApiConstants.grokStreamingData,
-      options: Options(
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
-      ),
-      data: {'model': model.name, 'prompt': prompt},
-    );
+    // Replace with the actual Grok API endpoint for streaming
+    final uri = Uri.parse('https://api.grok.com/v1/stream');
 
+    final request = http.Request('POST', uri)
+      ..headers['Authorization'] = 'Bearer $apiKey'
+      ..headers['Content-Type'] = 'application/json'
+      ..body = jsonEncode({'model': model.name, 'prompt': prompt});
+
+    final response = await request.send();
     if (response.statusCode == 200) {
-      yield* response.data.stream.transform(utf8.decoder);
+      await for (var chunk in response.stream.transform(utf8.decoder)) {
+        // You may want to split by newlines or handle JSON events depending on API
+        yield chunk;
+      }
     } else {
-      throw Exception('Failed to stream prompt: ${response.statusCode}');
+      throw Exception('Failed to stream prompt: \\${response.statusCode}');
     }
   }
 }

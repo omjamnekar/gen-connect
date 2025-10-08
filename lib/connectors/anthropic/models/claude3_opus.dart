@@ -1,17 +1,17 @@
-import '../usecase/text.dart';
-import '../usecase/code.dart';
-import '../usecase/image.dart';
-import '../usecase/audio.dart';
-import '../usecase/embedding.dart';
-import '../usecase/token.dart';
-import '../usecase/file.dart';
-import '../usecase/batch.dart';
-import '../usecase/streaming.dart';
-import '../usecase/tool.dart';
-import '../usecase/context.dart';
-import '../usecase/tier.dart';
-import '../usecase/attachment.dart';
-import '../usecase/reasoning.dart';
+import '../usecases/text.dart';
+import '../usecases/code.dart';
+import '../usecases/image.dart';
+import '../usecases/audio.dart';
+import '../usecases/embedding.dart';
+import '../usecases/token.dart';
+import '../usecases/file.dart';
+import '../usecases/batch.dart';
+import '../usecases/streaming.dart';
+import '../usecases/tool.dart';
+import '../usecases/context.dart';
+import '../usecases/tier.dart';
+import '../usecases/attachment.dart';
+import '../usecases/reasoning.dart';
 
 class Claude3Opus {
   final String apiKey;

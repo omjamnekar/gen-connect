@@ -6,8 +6,6 @@ import 'package:gen_connect/connectors/anthropic/anthropic_connector.dart';
 import 'package:gen_connect/connectors/deepseek/deepseek_connector.dart';
 import 'package:gen_connect/connectors/palm/palm_connector.dart';
 import 'package:gen_connect/connectors/grok/grok_connector.dart';
-import 'package:dio/dio.dart';
-import 'package:gen_connect/core/api/dio_client.dart';
 
 import 'repo/ai_model_connector.dart';
 import 'package:gen_connect/enums/models.dart';
@@ -15,8 +13,6 @@ import 'package:gen_connect/enums/models.dart';
 class GenConnectManager {
   static final GenConnectManager _instance = GenConnectManager._insternal();
   final Map<String, AIModelConnector> _connectors = {};
-
-  static final Dio _dio = DioClient().client;
 
   GenConnectManager._insternal();
 
@@ -57,6 +53,4 @@ class GenConnectManager {
       _connectors[Models.CLAUDE.name] as ClaudeConnector?;
 
   List<String> get availableModels => _connectors.keys.toList();
-
-  static Dio get dio => _dio;
 }

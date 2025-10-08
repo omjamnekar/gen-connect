@@ -1,40 +1,35 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../../core/errors.dart';
-import '../../../core/constants/api.dart';
-import 'package:gen_connect/gen_manager.dart';
 
 class MetaEmbeddingModelConnector {
   final String apiKey;
-  final Dio _dio;
-
-  MetaEmbeddingModelConnector({required this.apiKey})
-    : _dio = GenConnectManager.dio;
+  MetaEmbeddingModelConnector({required this.apiKey});
 
   Future<List<double>> getEmbedding(
     String text, {
     Map<String, dynamic>? extraOptions,
   }) async {
     try {
-      final body = {'text': text, if (extraOptions != null) ...extraOptions};
-
-      final response = await _dio.post(
-        ApiConstants.metaEmbeddingGenerate,
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
+      final uri = Uri.parse('https://api.meta.ai/v1/embedding/generate');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'text': text,
+          if (extraOptions != null) ...extraOptions,
+        }),
       );
-
       if (response.statusCode == 200) {
-        final data = response.data;
+        final data = jsonDecode(response.body);
         return List<double>.from(data['embedding'] ?? []);
       } else {
         throw APIException(
           'Meta embedding error: ${response.statusCode}',
-          innerException: Exception(response.data.toString()),
+          innerException: Exception(response.body),
         );
       }
     } catch (e) {

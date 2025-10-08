@@ -10,14 +10,8 @@ class AnthropicTokenUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/tokenize');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'model': model,
-        'input': text,
-      }),
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
+      body: jsonEncode({'model': model, 'input': text}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

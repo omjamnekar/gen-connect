@@ -10,10 +10,7 @@ class AnthropicTierUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/tier');
     final response = await http.get(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

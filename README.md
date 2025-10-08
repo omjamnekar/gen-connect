@@ -1,4 +1,20 @@
-![gen_connect logo](gen_connect.png)
+<p align="center">
+  <a href="https://pub.dev/packages/gen_connect">
+    <img src="https://github.com/omjamnekar/gen-connect/blob/main/gen_connect.png"  alt="Gen Connect Logo"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/omjamnekar/gen-connect">
+    <img src="https://img.shields.io/github/stars/omjamnekar/gen-connect?style=social" alt="GitHub Stars">
+  </a>
+  <a href="https://pub.dev/packages/gen_connect">
+    <img src="https://img.shields.io/pub/v/gen_connect" alt="Pub Version">
+  </a>
+  <!-- <a href="https://github.com/omjamnekar/gen-connect/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/omjamnekar/gen-connect/dart.yml" alt="Build Status">
+  </a> -->
+</p>
 
 gen_connect is a modular Dart/Flutter package for integrating any AI model/provider (OpenAI, Gemini, Anthropic, Meta, Grok, DeepSeek, PaLM, and custom models) into your app with type-safe, scalable connectors and unified error handling.
 

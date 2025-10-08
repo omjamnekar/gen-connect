@@ -10,14 +10,8 @@ class AnthropicContextUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/context');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'model': model,
-        'context_id': contextId,
-      }),
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
+      body: jsonEncode({'model': model, 'context_id': contextId}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

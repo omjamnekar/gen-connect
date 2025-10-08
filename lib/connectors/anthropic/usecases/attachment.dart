@@ -6,14 +6,14 @@ class AnthropicAttachmentUsecase {
   final String model;
   AnthropicAttachmentUsecase({required this.apiKey, required this.model});
 
-  Future<String> uploadAttachment(String attachmentBase64, String filename) async {
+  Future<String> uploadAttachment(
+    String attachmentBase64,
+    String filename,
+  ) async {
     final url = Uri.parse('https://api.anthropic.com/v1/upload-attachment');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
       body: jsonEncode({
         'model': model,
         'attachment': attachmentBase64,

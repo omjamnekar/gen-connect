@@ -10,15 +10,8 @@ class AnthropicToolUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/run-tool');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'model': model,
-        'tool': toolName,
-        'params': params,
-      }),
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
+      body: jsonEncode({'model': model, 'tool': toolName, 'params': params}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

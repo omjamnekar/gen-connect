@@ -10,10 +10,7 @@ class AnthropicBatchUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/batch-complete');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
       body: jsonEncode({
         'model': model,
         'prompts': prompts,

@@ -10,14 +10,8 @@ class AnthropicAudioUsecase {
     final url = Uri.parse('https://api.anthropic.com/v1/transcribe-audio');
     final response = await http.post(
       url,
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'model': model,
-        'audio': audioBase64,
-      }),
+      headers: {'x-api-key': apiKey, 'Content-Type': 'application/json'},
+      body: jsonEncode({'model': model, 'audio': audioBase64}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

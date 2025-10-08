@@ -1,7 +1,7 @@
 name: gen_connect
-description: "A modular Dart/Flutter package for integrating any AI model or provider (OpenAI, Gemini, Anthropic, Meta, Grok, DeepSeek, PaLM, and more). Supports multiple use cases (text, image, audio, code, video), unified error handling, and easy extensibility for new models and features."
-version: 0.0.6
-repository: https://github.com/your-org/gen-connect
+description: "A modular Dart/Flutter package for integrating AI models and providers. Supports text, image, audio, and more."
+version: 0.0.7
+repository: https://github.com/omjamnekar/gen-connect
 
 environment:
   sdk: ^3.8.1

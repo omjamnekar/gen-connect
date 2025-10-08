@@ -5,6 +5,9 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/omjamnekar/gen-connect">
+    <img src="https://img.shields.io/github/stars/omjamnekar/gen-connect?style=social" alt="GitHub Stars">
+  </a>
   <a href="https://pub.dev/packages/gen_connect">
     <img src="https://img.shields.io/pub/v/gen_connect" alt="Pub Version">
   </a>
